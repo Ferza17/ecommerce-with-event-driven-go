@@ -1,21 +1,6 @@
 version: "3.8"
 services:
 
-  consul-account-local:
-    container_name: consul-account-local
-    image: hashicorp/consul:1.11.2
-    networks:
-      - local-bridge
-    environment:
-      CONSUL_LOCAL_CONFIG: >-
-        {
-          "bootstrap": true,
-          "server": true,
-        }
-    restart: always
-    command: "agent -bootstrap-expect=1"
-
-
   consul-client:
     image: hashicorp/consul:1.11.2
     container_name: consul-client
@@ -32,8 +17,7 @@ services:
           "node_name": "service-discovery",
           "bind_addr": "0.0.0.0",
           "client_addr": "0.0.0.0",
-          "bootstrap_expect": 1,
-          "retry_join": ["consul-account-local"],
+          "bootstrap_expect": 0,
           "ui": true,
           "addresses" : {
             "http" : "0.0.0.0"
@@ -50,8 +34,6 @@ services:
             }
           }
         }
-    depends_on:
-      - consul-account-local
     ports:
       - "8500:8500"
       - "8600:8600/tcp"
@@ -64,7 +46,6 @@ services:
       - local-bridge
     ports:
       - '6379:6379'
-
 
   rabbitmq-local:
     networks:
@@ -88,7 +69,6 @@ services:
       - redis-local
       - postgres-local
 
-
   jaeger-local:
     networks:
       - local-bridge
@@ -109,8 +89,6 @@ services:
       - '14269:14269'
       - '9411:9411'
 
-
-
   mongo-local:
     networks:
       - local-bridge
@@ -122,8 +100,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: 1234
-
-
 
   service-account-rpc:
     container_name: service-account-rpc
@@ -138,7 +114,6 @@ services:
       - redis-local
       - jaeger-local
       - rabbitmq-local
-      - consul-account-local
       - consul-client
 
   api-gateway:
@@ -157,7 +132,7 @@ services:
       - consul-client
 
 
-        
+
 networks:
   local-bridge:
     driver: bridge
