@@ -1,0 +1,163 @@
+version: "3.8"
+services:
+
+  consul-account-local:
+    container_name: consul-account-local
+    image: hashicorp/consul:1.11.2
+    networks:
+      - local-bridge
+    environment:
+      CONSUL_LOCAL_CONFIG: >-
+        {
+          "bootstrap": true,
+          "server": true,
+        }
+    restart: always
+    command: "agent -bootstrap-expect=1"
+
+
+  consul-client:
+    image: hashicorp/consul:1.11.2
+    container_name: consul-client
+    restart: always
+    #    volumes:
+    #      - ./client.json:/consul/config/client.json:ro
+    #      - ./certs/:/consul/config/certs/:ro
+    networks:
+      - consul-local
+    command: "agent -server -bootstrap -ui -client=0.0.0.0"
+    environment:
+      CONSUL_LOCAL_CONFIG: >-
+        {
+          "node_name": "service-discovery",
+          "bind_addr": "0.0.0.0",
+          "client_addr": "0.0.0.0",
+          "bootstrap_expect": 1,
+          "retry_join": ["consul-account-local"],
+          "ui": true,
+          "addresses" : {
+            "http" : "0.0.0.0"
+          },
+          "ports": {
+            "http": 8500
+          },
+          "acl": {
+            "enabled": false,
+            "default_policy": "deny",
+            "tokens": {
+              "initial_management": "root",
+              "agent": "root"
+            }
+          }
+        }
+    depends_on:
+      - consul-account-local
+    ports:
+      - "8500:8500"
+      - "8600:8600/tcp"
+      - "8600:8600/udp"
+
+  redis-local:
+    image: redis:latest
+    container_name: redis-local
+    networks:
+      - local-bridge
+    ports:
+      - '6379:6379'
+
+
+  rabbitmq-local:
+    networks:
+      - local-bridge
+    container_name: rabbitmq-local
+    image: rabbitmq:3-management
+    labels:
+      NAME: "rabbitmq-local"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    depends_on:
+      - mongo
+      - jaeger-local
+      - redis-local
+      - postgres-local
+
+
+  jaeger-local:
+    networks:
+      - local-bridge
+    container_name: jaeger-local
+    image: jaegertracing/all-in-one:1.37
+    environment:
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - '6831:6831/udp'
+      - '6832:6832/udp'
+      - '5778:5778'
+      - '16686:16686'
+      - '4317:4317'
+      - '4318:4318'
+      - '14250:14250'
+      - '14268:14268'
+      - '14269:14269'
+      - '9411:9411'
+
+
+
+  mongo-local:
+    networks:
+      - local-bridge
+    container_name: mongo-local
+    image: mongo
+    restart: always
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+
+
+
+  service-account-rpc:
+    container_name: service-account-rpc
+    restart: on-failure
+    networks:
+      - local-bridge
+    build:
+      context: ./SERVICE-ACCOUNT
+    ports:
+      - '50051:50051'
+    depends_on:
+      - redis-local
+      - jaeger-local
+      - rabbitmq-local
+      - consul-account-local
+      - consul-client
+
+  api-gateway:
+    restart: on-failure
+    container_name: api-gateway
+    networks:
+      - local-bridge
+    build:
+      context: ./API-GATEWAY
+    ports:
+      - '3000:3000'
+    depends_on:
+      - service-account-rpc
+      - jaeger-local
+      - rabbitmq-local
+      - consul-client
+
+
+        
+networks:
+  local-bridge:
+    driver: bridge
