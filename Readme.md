@@ -6,9 +6,9 @@
 
 ### TODO
 - [ ] Implement GraphQL on API-GATEWAY
-- [ ] Implement CQRS
+- [X] Implement CQRS
 - [ ] Implement SAGA
 - [ ] Implement Event Sourcing
 - [ ] Store Event on Cassandra
-- [ ] Implement gRPC
-- [ ] Implement message queuing
+- [X] Implement gRPC
+- [X] Implement message queuing
