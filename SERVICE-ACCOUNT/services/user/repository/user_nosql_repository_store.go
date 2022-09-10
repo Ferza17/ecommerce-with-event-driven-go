@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/Ferza17/event-driven-account-service/model/pb"
 )
 
 type UserNOSQLTransactionCreator interface {
@@ -13,14 +15,17 @@ type UserNOSQLTransactionCreator interface {
 	CommitTransaction(session mongo.Session, ctx context.Context) (err error)
 }
 
-type UserNOSQLRepositoryWriter interface {
+type UserNOSQLRepositoryCommand interface {
+	CreateUser(ctx context.Context, session mongo.Session, request *pb.RegisterRequest) (response *pb.RegisterResponse, err error)
 }
 
-type UserNOSQLRepositoryReader interface {
+type UserNOSQLRepositoryQuery interface {
+	FindUserByEmail(ctx context.Context, email string) (response *pb.User, err error)
+	FindUserById(ctx context.Context, id string) (response *pb.User, err error)
 }
 
 type UserNOSQLRepositoryStore interface {
 	UserNOSQLTransactionCreator
-	UserNOSQLRepositoryWriter
-	UserNOSQLRepositoryReader
+	UserNOSQLRepositoryCommand
+	UserNOSQLRepositoryQuery
 }

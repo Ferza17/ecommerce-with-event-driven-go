@@ -1,34 +1,41 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/hashicorp/consul/api"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/opentracing/opentracing-go"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 var (
+	consulClient *api.Client
+	db           *mongo.Client
 	logger       *zap.Logger
 	tracer       opentracing.Tracer
-	consulClient *api.Client
 	amqpConn     *amqp.Connection
+	redisClient  *redis.Client
 )
 
 func init() {
 	consulClient = NewConsulClient()
-
+	db = NewDb()
 	logger = NewLogger()
 	tracer = NewTracer()
 	amqpConn = NewAmqp()
+	redisClient = NewRedisClient()
 }
 
 func NewLogger() (logger *zap.Logger) {
@@ -46,22 +53,23 @@ func NewLogger() (logger *zap.Logger) {
 			EncodeCaller: zapcore.ShortCallerEncoder,
 		},
 	}
-
 	if logger, err = logConfig.Build(); err != nil {
-		panic(err)
+		log.Fatalf("error when register logger: %v\n", err)
 	}
+	log.Println("logger registered")
 	return
 }
 
 func NewTracer() opentracing.Tracer {
 	cfg, err := config.FromEnv()
 	if err != nil {
-		panic(fmt.Sprintf("ERROR: failed to read config from env vars: %v\n", err))
+		log.Fatalf("ERROR: failed to read config from env vars: %v\n", err)
 	}
 	tc, _, err := cfg.NewTracer(config.Logger(jaeger.StdLogger))
 	if err != nil {
-		panic(fmt.Sprintf("ERROR: cannot init Jaeger: %v\n", err))
+		log.Fatalf("ERROR: cannot init Jaeger: %v\n", err)
 	}
+	log.Println("tracer connected")
 	return tc
 }
 
@@ -71,7 +79,7 @@ func NewConsulClient() *api.Client {
 	defaultConfig := api.DefaultConfig()
 	client, err := api.NewClient(defaultConfig)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatalf("error when connect to consul: %v\n", err)
 	}
 	serviceRegistration := &api.AgentServiceRegistration{
 		Name:    os.Getenv("CODENAME"),
@@ -83,11 +91,10 @@ func NewConsulClient() *api.Client {
 			Timeout:  "30s",
 		},
 	}
-
 	if err = client.Agent().ServiceRegister(serviceRegistration); err != nil {
-		log.Fatalln("error when register service")
+		log.Fatalf("error when register service: %v\n", err)
 	}
-
+	log.Println("consul connected")
 	return client
 }
 
@@ -100,7 +107,55 @@ func NewAmqp() *amqp.Connection {
 			os.Getenv("RABBITMQ_PORT"),
 		))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("error while connecting to RabbitMQ: %v\n", err)
 	}
+	log.Println("RabbitMQ connected")
+	return conn
+}
+
+func NewRedisClient() *redis.Client {
+	db, err := strconv.Atoi(os.Getenv("REDIS_DB"))
+	if err != nil {
+		log.Fatalln("db: env REDIS_DB value should be an integer greater than 0")
+	}
+	client := redis.NewClient(
+		&redis.Options{
+			Addr:     os.Getenv("REDIS_ADDRESS"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			DB:       db,
+		},
+	)
+	// Make sure that connection insurable
+	_, err = client.Ping(context.Background()).Result()
+	if err != nil {
+		log.Fatalf("error while connecting to redis: %v\n", err)
+	}
+	log.Println("redis connected")
+	return client
+}
+
+func NewDb() *mongo.Client {
+	conn, err := mongo.Connect(
+		context.Background(),
+		options.
+			Client().
+			ApplyURI(
+				fmt.Sprintf("mongodb://%s:%s@%s:%s/%s?authSource=admin",
+					os.Getenv("MONGODB_USERNAME"),
+					os.Getenv("MONGODB_PASSWORD"),
+					os.Getenv("MONGODB_HOST"),
+					os.Getenv("MONGODB_PORT"),
+					os.Getenv("MONGODB_DATABASE"),
+				),
+			),
+	)
+	if err != nil {
+		log.Fatalf("error while connecting to MongoDB: %v\n", err)
+	}
+	// Make sure that connection insurable
+	if err = conn.Ping(context.Background(), nil); err != nil {
+		log.Fatalf("Could not connect to MongoDB: %v\n", err)
+	}
+	log.Println("MongoDB connected")
 	return conn
 }

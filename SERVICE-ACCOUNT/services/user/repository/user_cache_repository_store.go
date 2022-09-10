@@ -1,12 +1,12 @@
 package repository
 
-type UserCacheRepositoryWriter interface {
+type UserCacheRepositoryCommand interface {
 }
 
-type UserCacheRepositoryReader interface {
+type UserCacheRepositoryQuery interface {
 }
 
 type UserCacheRepositoryStore interface {
-	UserCacheRepositoryWriter
-	UserCacheRepositoryReader
+	UserCacheRepositoryCommand
+	UserCacheRepositoryQuery
 }

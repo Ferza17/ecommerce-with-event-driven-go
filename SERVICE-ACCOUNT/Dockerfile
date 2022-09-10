@@ -14,5 +14,5 @@ RUN go build -o account-service
 FROM alpine:3.12.1
 WORKDIR /usr/bin
 COPY --from=build /go/src/github.com/Ferza17/event-driven-account-service .
-CMD [ "./ACCOUNT-SERVICE","run" ]
+CMD [ "./ACCOUNT-SERVICE","rpc" ]
 
