@@ -13,17 +13,20 @@ import (
 )
 
 type userUseCase struct {
-	userNOSQLRepository repository.UserNOSQLRepositoryStore
-	userCacheRepository repository.UserCacheRepositoryStore
+	userMongoDBRepository     repository.UserMongoDBRepositoryStore
+	userCassandraDBRepository repository.UserCassandraDBRepositoryStore
+	userRedisRepository       repository.UserCacheRepositoryStore
 }
 
 func NewUserUseCase(
-	userNOSQLRepository repository.UserNOSQLRepositoryStore,
+	userNOSQLRepository repository.UserMongoDBRepositoryStore,
+	userCassandraDBRepository repository.UserCassandraDBRepositoryStore,
 	userCacheRepository repository.UserCacheRepositoryStore,
 ) UserUseCaseStore {
 	return &userUseCase{
-		userNOSQLRepository: userNOSQLRepository,
-		userCacheRepository: userCacheRepository,
+		userMongoDBRepository:     userNOSQLRepository,
+		userCassandraDBRepository: userCassandraDBRepository,
+		userRedisRepository:       userCacheRepository,
 	}
 }
 
@@ -36,22 +39,22 @@ func (u *userUseCase) CreateUser(ctx context.Context, request *pb.RegisterReques
 		return
 	}
 
-	session, err := u.userNOSQLRepository.CreateNoSQLSession()
+	session, err := u.userMongoDBRepository.CreateNoSQLSession()
 	if err != nil {
 		return
 	}
 	defer session.EndSession(ctx)
 
-	if err = u.userNOSQLRepository.StartTransaction(session); err != nil {
+	if err = u.userMongoDBRepository.StartTransaction(session); err != nil {
 		return
 	}
 
-	if response, err = u.userNOSQLRepository.CreateUser(ctx, session, request); err != nil {
-		err = u.userNOSQLRepository.AbortTransaction(session, ctx)
+	if response, err = u.userMongoDBRepository.CreateUser(ctx, session, request); err != nil {
+		err = u.userMongoDBRepository.AbortTransaction(session, ctx)
 		return
 	}
 
-	err = u.userNOSQLRepository.CommitTransaction(session, ctx)
+	err = u.userMongoDBRepository.CommitTransaction(session, ctx)
 	return
 }
 
@@ -59,7 +62,7 @@ func (u *userUseCase) FindUserByEmailAndPassword(ctx context.Context, request *p
 	response = &pb.LoginResponse{}
 	span, ctx := tracing.StartSpanFromContext(ctx, "UserUseCase-FindUserByEmail")
 	defer span.Finish()
-	user, err := u.userNOSQLRepository.FindUserByEmail(ctx, request.GetEmail())
+	user, err := u.userMongoDBRepository.FindUserByEmail(ctx, request.GetEmail())
 	if isAuthenticated := hash.Compare(user.GetPassword(), request.Password); !isAuthenticated {
 		err = xerrs.Mask(utils.ErrNotFound, utils.ErrNotFound)
 		return
@@ -71,6 +74,6 @@ func (u *userUseCase) FindUserByEmailAndPassword(ctx context.Context, request *p
 func (u *userUseCase) FindUserById(ctx context.Context, request *pb.FindUserByIdRequest) (response *pb.User, err error) {
 	span, ctx := tracing.StartSpanFromContext(ctx, "UserUseCase-FindUserById")
 	defer span.Finish()
-	response, err = u.userNOSQLRepository.FindUserById(ctx, request.GetId())
+	response, err = u.userMongoDBRepository.FindUserById(ctx, request.GetId())
 	return
 }

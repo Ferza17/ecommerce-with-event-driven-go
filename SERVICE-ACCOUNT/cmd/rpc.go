@@ -17,10 +17,11 @@ var rpcCommand = &cobra.Command{
 			os.Getenv("RPC_HOST"),
 			os.Getenv("RPC_PORT"),
 			rpc.NewTracer(tracer),
-			rpc.NewDB(db),
+			rpc.NewMongoClient(mongoClient),
 			rpc.NewLogger(logger),
 			rpc.NewRedisClient(redisClient),
-			rpc.NewAMQP(amqpConn),
+			rpc.NewRabbitMQConnection(amqpConn),
+			rpc.NewCassandraSession(cassandraSession),
 		).Serve()
 	},
 }

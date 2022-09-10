@@ -7,6 +7,7 @@ const (
 	RedisDBContextKey      key = "redis_db_context_key"
 	MongodbContextKey      key = "mongo_db_context_key"
 	TracerContextKey       key = "tracer_context_key"
+	CassandraDBContextKey  key = "cassandra_db_context_key"
 
 	AccountSpanContextKey key = "account_service_span_key"
 

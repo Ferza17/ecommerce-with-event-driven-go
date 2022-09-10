@@ -10,16 +10,13 @@ import (
 )
 
 func UnaryRegisterTracerContext(tracer opentracing.Tracer) grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-		newCtx := context.WithValue(ctx, utils.TracerContextKey, tracer)
-		resp, err = handler(newCtx, req)
-		return resp, err
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		return handler(context.WithValue(ctx, utils.TracerContextKey, tracer), req)
 	}
 }
 
-func RegisterTracerContext(tracer opentracing.Tracer, parentContext context.Context) (ctx context.Context) {
-	ctx = context.WithValue(parentContext, utils.TracerContextKey, tracer)
-	return
+func RegisterTracerContext(tracer opentracing.Tracer, ctx context.Context) context.Context {
+	return context.WithValue(ctx, utils.TracerContextKey, tracer)
 }
 
 func GetTracerFromContext(ctx context.Context) opentracing.Tracer {

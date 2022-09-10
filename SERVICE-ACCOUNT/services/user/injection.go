@@ -12,11 +12,11 @@ import (
 )
 
 func newUserUseCase(ctx context.Context) userUseCase.UserUseCaseStore {
-	redis := middleware.GetRedisFromContext(ctx)
-	db := middleware.GetMongoDBFromContext(ctx)
-	newUserNOSQLRepository := repository.NewUserNOSQLRepository(db)
-	newUserCacheRepository := repository.NewUserCacheRepository(redis)
-	return userUseCase.NewUserUseCase(newUserNOSQLRepository, newUserCacheRepository)
+	return userUseCase.NewUserUseCase(
+		repository.NewUserMongoDBRepository(middleware.GetMongoDBFromContext(ctx)),
+		repository.NewUserCassandraDBRepository(middleware.GetCassandraDBFromContext(ctx)),
+		repository.NewUserCacheRepository(middleware.GetRedisFromContext(ctx)),
+	)
 }
 
 func RegisterUserUseCaseContext(ctx context.Context) context.Context {
@@ -24,10 +24,8 @@ func RegisterUserUseCaseContext(ctx context.Context) context.Context {
 }
 
 func UnaryRegisterUserUseCaseContext() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-		ctx = context.WithValue(ctx, utils.UserUseCaseContextKey, newUserUseCase(ctx))
-		resp, err = handler(ctx, req)
-		return resp, err
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		return handler(context.WithValue(ctx, utils.UserUseCaseContextKey, newUserUseCase(ctx)), req)
 	}
 }
 

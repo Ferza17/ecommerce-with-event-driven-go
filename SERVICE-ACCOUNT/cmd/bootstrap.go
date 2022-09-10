@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/gocql/gocql"
 	"github.com/hashicorp/consul/api"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/opentracing/opentracing-go"
@@ -21,21 +22,23 @@ import (
 )
 
 var (
-	consulClient *api.Client
-	db           *mongo.Client
-	logger       *zap.Logger
-	tracer       opentracing.Tracer
-	amqpConn     *amqp.Connection
-	redisClient  *redis.Client
+	consulClient     *api.Client
+	mongoClient      *mongo.Client
+	cassandraSession *gocql.Session
+	logger           *zap.Logger
+	tracer           opentracing.Tracer
+	amqpConn         *amqp.Connection
+	redisClient      *redis.Client
 )
 
 func init() {
 	consulClient = NewConsulClient()
-	db = NewDb()
+	mongoClient = NewMongoClient()
 	logger = NewLogger()
 	tracer = NewTracer()
 	amqpConn = NewAmqp()
 	redisClient = NewRedisClient()
+	cassandraSession = NewCassandraSession()
 }
 
 func NewLogger() (logger *zap.Logger) {
@@ -116,7 +119,7 @@ func NewAmqp() *amqp.Connection {
 func NewRedisClient() *redis.Client {
 	db, err := strconv.Atoi(os.Getenv("REDIS_DB"))
 	if err != nil {
-		log.Fatalln("db: env REDIS_DB value should be an integer greater than 0")
+		log.Fatalln("mongoClient: env REDIS_DB value should be an integer greater than 0")
 	}
 	client := redis.NewClient(
 		&redis.Options{
@@ -134,7 +137,7 @@ func NewRedisClient() *redis.Client {
 	return client
 }
 
-func NewDb() *mongo.Client {
+func NewMongoClient() *mongo.Client {
 	conn, err := mongo.Connect(
 		context.Background(),
 		options.
@@ -158,4 +161,15 @@ func NewDb() *mongo.Client {
 	}
 	log.Println("MongoDB connected")
 	return conn
+}
+
+func NewCassandraSession() *gocql.Session {
+	cluster := gocql.NewCluster(os.Getenv("CASSANDRA_HOST"))
+	cluster.Keyspace = os.Getenv("CASSANDRA_KEYSPACE")
+	session, err := cluster.CreateSession()
+	if err != nil {
+		log.Fatalf("Could not connect to CassandraDB: %v\n", err)
+	}
+	log.Println("CassandraDB Connected")
+	return session
 }

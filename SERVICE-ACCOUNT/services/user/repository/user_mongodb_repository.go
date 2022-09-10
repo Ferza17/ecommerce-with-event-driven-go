@@ -26,7 +26,7 @@ type userNOSQLRepository struct {
 	db *mongo.Client
 }
 
-func NewUserNOSQLRepository(db *mongo.Client) UserNOSQLRepositoryStore {
+func NewUserMongoDBRepository(db *mongo.Client) UserMongoDBRepositoryStore {
 	return &userNOSQLRepository{
 		db: db,
 	}

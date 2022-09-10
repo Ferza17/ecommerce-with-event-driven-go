@@ -13,11 +13,12 @@ var runCommand = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("========= Starting AMQP CONSUMER Server =========")
 		amqp.NewServer(
-			amqp.NewDB(db),
+			amqp.NewMongoClient(mongoClient),
 			amqp.NewLogger(logger),
-			amqp.NewAMQP(amqpConn),
+			amqp.NewRabbitMQConnection(amqpConn),
 			amqp.NewTracer(tracer),
 			amqp.NewRedisClient(redisClient),
+			amqp.NewCassandraSession(cassandraSession),
 		).Serve()
 	},
 }

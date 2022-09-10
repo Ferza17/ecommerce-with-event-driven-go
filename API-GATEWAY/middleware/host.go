@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// HostInfo contains information specific to this module
+// HostInfo contains information specific to this services
 type HostInfo struct {
 	CodeName string
 }

@@ -2,6 +2,7 @@ package amqp
 
 import (
 	"github.com/go-redis/redis/v8"
+	"github.com/gocql/gocql"
 	"github.com/opentracing/opentracing-go"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,7 +15,7 @@ func NewLogger(logger *zap.Logger) Option {
 	}
 }
 
-func NewDB(db *mongo.Client) Option {
+func NewMongoClient(db *mongo.Client) Option {
 	return func(s *Server) {
 		s.db = db
 	}
@@ -26,7 +27,7 @@ func NewRedisClient(client *redis.Client) Option {
 	}
 }
 
-func NewAMQP(conn *amqp.Connection) Option {
+func NewRabbitMQConnection(conn *amqp.Connection) Option {
 	return func(s *Server) {
 		s.amqpConn = conn
 	}
@@ -35,5 +36,11 @@ func NewAMQP(conn *amqp.Connection) Option {
 func NewTracer(tracer opentracing.Tracer) Option {
 	return func(s *Server) {
 		s.tracer = tracer
+	}
+}
+
+func NewCassandraSession(session *gocql.Session) Option {
+	return func(s *Server) {
+		s.cassandraSession = session
 	}
 }

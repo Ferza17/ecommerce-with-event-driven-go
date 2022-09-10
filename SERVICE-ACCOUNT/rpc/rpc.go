@@ -6,6 +6,7 @@ import (
 	"net"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/gocql/gocql"
 	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	otgrpc "github.com/opentracing-contrib/go-grpc"
 	"github.com/opentracing/opentracing-go"
@@ -21,15 +22,16 @@ import (
 
 type (
 	Server struct {
-		address     string
-		port        string
-		listen      *net.Listener
-		redisClient *redis.Client
-		grpcServer  *grpc.Server
-		logger      *zap.Logger
-		db          *mongo.Client
-		amqpConn    *amqp.Connection
-		tracer      opentracing.Tracer
+		address          string
+		port             string
+		listen           *net.Listener
+		redisClient      *redis.Client
+		grpcServer       *grpc.Server
+		logger           *zap.Logger
+		mongodbClient    *mongo.Client
+		cassandraSession *gocql.Session
+		amqpConn         *amqp.Connection
+		tracer           opentracing.Tracer
 	}
 	Option func(s *Server)
 )
@@ -62,10 +64,11 @@ func (srv *Server) setup() {
 	opts := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
 			grpcMiddleware.ChainUnaryServer(
-				middleware.UnaryRegisterMongoDBContext(srv.db),
+				middleware.UnaryRegisterMongoDBContext(srv.mongodbClient),
 				middleware.UnaryRegisterRedisContext(srv.redisClient),
 				middleware.UnaryRegisterRabbitMQAmqpContext(srv.amqpConn),
 				middleware.UnaryRegisterTracerContext(srv.tracer),
+				middleware.UnaryRegisterCassandraDBContext(srv.cassandraSession),
 				otgrpc.OpenTracingServerInterceptor(srv.tracer),
 				userService.UnaryRegisterUserUseCaseContext(),
 			),

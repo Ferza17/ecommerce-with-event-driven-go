@@ -101,6 +101,18 @@ services:
       MONGO_INITDB_ROOT_USERNAME: mongo
       MONGO_INITDB_ROOT_PASSWORD: 1234
 
+  cassandra-local:
+    image: cassandra:latest
+    container_name: cassandra-local
+    networks:
+      - local-bridge
+    volumes:
+      - /path/to/config:/etc/cassandra
+    environment:
+      CASSANDRA_SEEDS: cassandra-local
+    ports:
+      - '9042:9042'
+
   service-account-rpc:
     container_name: service-account-rpc
     restart: on-failure
