@@ -15,7 +15,7 @@ func newUserUseCase(ctx context.Context) userUseCase.UserUseCaseStore {
 	return userUseCase.NewUserUseCase(
 		repository.NewUserMongoDBRepository(middleware.GetMongoDBFromContext(ctx)),
 		repository.NewUserCassandraDBRepository(middleware.GetCassandraDBFromContext(ctx)),
-		repository.NewUserCacheRepository(middleware.GetRedisFromContext(ctx)),
+		repository.NewUserRedisRepository(middleware.GetRedisFromContext(ctx)),
 	)
 }
 

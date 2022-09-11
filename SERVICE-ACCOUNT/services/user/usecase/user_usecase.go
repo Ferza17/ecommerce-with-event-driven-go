@@ -15,13 +15,13 @@ import (
 type userUseCase struct {
 	userMongoDBRepository     repository.UserMongoDBRepositoryStore
 	userCassandraDBRepository repository.UserCassandraDBRepositoryStore
-	userRedisRepository       repository.UserCacheRepositoryStore
+	userRedisRepository       repository.UserRedisRepositoryStore
 }
 
 func NewUserUseCase(
 	userNOSQLRepository repository.UserMongoDBRepositoryStore,
 	userCassandraDBRepository repository.UserCassandraDBRepositoryStore,
-	userCacheRepository repository.UserCacheRepositoryStore,
+	userCacheRepository repository.UserRedisRepositoryStore,
 ) UserUseCaseStore {
 	return &userUseCase{
 		userMongoDBRepository:     userNOSQLRepository,

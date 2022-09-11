@@ -16,7 +16,7 @@ func newProductUseCase(ctx context.Context) productUseCase.ProductUseCaseStore {
 	return productUseCase.NewProductUseCase(
 		repository.NewProductElasticsearchRepository(middleware.GetElasticsearchFromContext(ctx)),
 		repository.NewProductCassandraDBRepository(middleware.GetCassandraDBFromContext(ctx)),
-		repository.NewProductCacheRepository(middleware.GetRedisFromContext(ctx)),
+		repository.NewProductRedisRepository(middleware.GetRedisFromContext(ctx)),
 	)
 }
 

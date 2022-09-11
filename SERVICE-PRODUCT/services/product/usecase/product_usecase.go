@@ -7,13 +7,13 @@ import (
 type productUseCase struct {
 	productElasticsearchRepository repository.ProductElasticsearchRepositoryStore
 	productCassandraDBRepository   repository.ProductCassandraDBRepositoryStore
-	productRedisRepository         repository.ProductCacheRepositoryStore
+	productRedisRepository         repository.ProductRedisRepositoryStore
 }
 
 func NewProductUseCase(
 	productElasticsearchRepository repository.ProductElasticsearchRepositoryStore,
 	productCassandraDBRepository repository.ProductCassandraDBRepositoryStore,
-	productCacheRepository repository.ProductCacheRepositoryStore,
+	productCacheRepository repository.ProductRedisRepositoryStore,
 ) ProductUseCaseStore {
 	return &productUseCase{
 		productElasticsearchRepository: productElasticsearchRepository,

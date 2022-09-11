@@ -2,12 +2,12 @@ package repository
 
 import "github.com/go-redis/redis/v8"
 
-type productCacheRepository struct {
+type productRedisRepository struct {
 	client *redis.Client
 }
 
-func NewProductCacheRepository(client *redis.Client) ProductCacheRepositoryStore {
-	return &productCacheRepository{
+func NewProductRedisRepository(client *redis.Client) ProductRedisRepositoryStore {
+	return &productRedisRepository{
 		client: client,
 	}
 }

@@ -14,5 +14,5 @@ RUN go build -o product-service
 FROM alpine:3.12.1
 WORKDIR /usr/bin
 COPY --from=build /go/src/github.com/Ferza17/event-driven-product-service .
-CMD [ "./PRODUCT-SERVICE","rpc" ]
+CMD [ "./PRODUCT-SERVICE","grpc" ]
 

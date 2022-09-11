@@ -88,7 +88,7 @@ Temporary Items
 *.tmPreferences.cache
 *.stTheme.cache
 
-# Workspace files are user-specific
+# Workspace files are cart-specific
 *.sublime-workspace
 
 # Project files should be checked into the repository, unless a significant

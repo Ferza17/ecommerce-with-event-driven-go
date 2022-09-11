@@ -22,17 +22,17 @@ const (
 	collectionUsers = "users"
 )
 
-type userNOSQLRepository struct {
+type userMongoDBRepository struct {
 	db *mongo.Client
 }
 
 func NewUserMongoDBRepository(db *mongo.Client) UserMongoDBRepositoryStore {
-	return &userNOSQLRepository{
+	return &userMongoDBRepository{
 		db: db,
 	}
 }
 
-func (q *userNOSQLRepository) CreateUser(ctx context.Context, session mongo.Session, request *pb.RegisterRequest) (response *pb.RegisterResponse, err error) {
+func (q *userMongoDBRepository) CreateUser(ctx context.Context, session mongo.Session, request *pb.RegisterRequest) (response *pb.RegisterResponse, err error) {
 	var (
 		now = time.Now().UTC()
 	)
@@ -59,7 +59,7 @@ func (q *userNOSQLRepository) CreateUser(ctx context.Context, session mongo.Sess
 	return
 }
 
-func (q *userNOSQLRepository) FindUserByEmail(ctx context.Context, email string) (response *pb.User, err error) {
+func (q *userMongoDBRepository) FindUserByEmail(ctx context.Context, email string) (response *pb.User, err error) {
 	var (
 		rawUser userSchema.User
 	)
@@ -96,7 +96,7 @@ func (q *userNOSQLRepository) FindUserByEmail(ctx context.Context, email string)
 	return
 }
 
-func (q *userNOSQLRepository) FindUserById(ctx context.Context, id string) (response *pb.User, err error) {
+func (q *userMongoDBRepository) FindUserById(ctx context.Context, id string) (response *pb.User, err error) {
 	var (
 		rawUser userSchema.User
 	)
@@ -134,7 +134,7 @@ func (q *userNOSQLRepository) FindUserById(ctx context.Context, id string) (resp
 	return
 }
 
-func (q *userNOSQLRepository) CreateNoSQLSession() (session mongo.Session, err error) {
+func (q *userMongoDBRepository) CreateNoSQLSession() (session mongo.Session, err error) {
 	session, err = q.db.StartSession()
 	if err != nil {
 		err = xerrs.Mask(err, utils.ErrQueryTxBegin)
@@ -142,21 +142,21 @@ func (q *userNOSQLRepository) CreateNoSQLSession() (session mongo.Session, err e
 	return
 }
 
-func (q *userNOSQLRepository) StartTransaction(session mongo.Session) (err error) {
+func (q *userMongoDBRepository) StartTransaction(session mongo.Session) (err error) {
 	if err = session.StartTransaction(); err != nil {
 		err = xerrs.Mask(err, utils.ErrQueryTxBegin)
 	}
 	return
 }
 
-func (q *userNOSQLRepository) AbortTransaction(session mongo.Session, ctx context.Context) (err error) {
+func (q *userMongoDBRepository) AbortTransaction(session mongo.Session, ctx context.Context) (err error) {
 	if err = session.AbortTransaction(ctx); err != nil {
 		err = xerrs.Mask(err, utils.ErrQueryTxRollback)
 	}
 	return
 }
 
-func (q *userNOSQLRepository) CommitTransaction(session mongo.Session, ctx context.Context) (err error) {
+func (q *userMongoDBRepository) CommitTransaction(session mongo.Session, ctx context.Context) (err error) {
 	if err = session.CommitTransaction(ctx); err != nil {
 		err = xerrs.Mask(err, utils.ErrQueryTxCommit)
 	}

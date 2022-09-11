@@ -1,12 +1,12 @@
 package repository
 
-type UserCacheRepositoryCommand interface {
+type UserRedisRepositoryCommand interface {
 }
 
-type UserCacheRepositoryQuery interface {
+type UserRedisRepositoryQuery interface {
 }
 
-type UserCacheRepositoryStore interface {
-	UserCacheRepositoryCommand
-	UserCacheRepositoryQuery
+type UserRedisRepositoryStore interface {
+	UserRedisRepositoryCommand
+	UserRedisRepositoryQuery
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	rootCommand.AddCommand(runCommand, rpcCommand)
+	rootCommand.AddCommand(rabbitmqCommand, grpcCommand)
 }
 
 var rootCommand = &cobra.Command{
