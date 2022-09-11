@@ -1,16 +1,13 @@
 package repository
 
-type UserCassandraDBTransactionCreator interface {
+import "github.com/gocql/gocql"
+
+type userCassandraDBRepository struct {
+	session *gocql.Session
 }
 
-type UserCassandraDBRepositoryCommand interface {
-}
-
-type UserCassandraDBRepositoryQuery interface {
-}
-
-type UserCassandraDBRepositoryStore interface {
-	UserCassandraDBTransactionCreator
-	UserCassandraDBRepositoryCommand
-	UserCassandraDBRepositoryQuery
+func NewUserCassandraDBRepository(session *gocql.Session) UserCassandraDBRepositoryStore {
+	return &userCassandraDBRepository{
+		session: session,
+	}
 }
