@@ -1,6 +1,6 @@
 FROM golang:1.19.0-alpine3.15 as build
 
-WORKDIR /go/src/github.com/Ferza17/event-driven-account-service
+WORKDIR /go/src/github.com/Ferza17/event-driven-cart-service
 
 COPY go.mod ./
 COPY go.sum ./
@@ -13,6 +13,6 @@ RUN go build -o account-service
 
 FROM alpine:3.12.1
 WORKDIR /usr/bin
-COPY --from=build /go/src/github.com/Ferza17/event-driven-account-service .
-CMD [ "./ACCOUNT-SERVICE","grpc" ]
+COPY --from=build /go/src/github.com/Ferza17/event-driven-cart-service .
+CMD [ "./CART-SERVICE","grpc" ]
 

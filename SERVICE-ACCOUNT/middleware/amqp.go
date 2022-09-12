@@ -10,7 +10,8 @@ import (
 )
 
 func RegisterRabbitMQAmqpContext(conn *amqp.Connection, ctx context.Context) context.Context {
-	return context.WithValue(ctx, utils.RabbitmqAmqpContextKey, conn)
+	ctx = context.WithValue(ctx, utils.RabbitmqAmqpContextKey, conn)
+	return ctx
 }
 
 func UnaryRegisterRabbitMQAmqpContext(conn *amqp.Connection) grpc.UnaryServerInterceptor {

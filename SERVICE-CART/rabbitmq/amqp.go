@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/Ferza17/event-driven-cart-service/middleware"
+	"github.com/Ferza17/event-driven-cart-service/module/cart"
 )
 
 type (
@@ -45,5 +46,7 @@ func (srv *Server) setup() context.Context {
 	ctx = middleware.RegisterTracerContext(srv.tracer, ctx)
 	ctx = middleware.RegisterCassandraDBContext(srv.cassandraSession, ctx)
 	ctx = middleware.RegisterRabbitMQAmqpContext(srv.amqpConn, ctx)
+
+	ctx = cart.RegisterCartUseCaseContext(ctx)
 	return ctx
 }

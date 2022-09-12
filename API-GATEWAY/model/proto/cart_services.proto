@@ -1,0 +1,9 @@
+syntax = "proto3";
+package model;
+option go_package = "/model/pb";
+import "cart_message.proto";
+
+
+service CartService {
+
+}

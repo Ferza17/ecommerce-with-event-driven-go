@@ -1,0 +1,4 @@
+syntax = "proto3";
+package model;
+option go_package = "/model/pb";
+import "google/protobuf/timestamp.proto";

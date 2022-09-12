@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/Ferza17/event-driven-account-service/middleware"
-	"github.com/Ferza17/event-driven-account-service/services/user"
+	"github.com/Ferza17/event-driven-account-service/module/user"
 )
 
 type (

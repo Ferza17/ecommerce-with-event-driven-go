@@ -7,7 +7,7 @@ import (
 	"github.com/RoseRocket/xerrs"
 	amqp "github.com/rabbitmq/amqp091-go"
 
-	userConsumer "github.com/Ferza17/event-driven-account-service/services/user/consumer"
+	userConsumer "github.com/Ferza17/event-driven-account-service/module/user/presenter/consumer"
 	"github.com/Ferza17/event-driven-account-service/utils"
 )
 
@@ -22,7 +22,9 @@ func Consumer(ctx context.Context, conn *amqp.Connection) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		userConsumer.UserConsumerRegister(ctx, ch)
+		userConsumer.
+			NewUserConsumerPresenter().
+			Consume(ctx, ch)
 	}()
 	wg.Wait()
 }

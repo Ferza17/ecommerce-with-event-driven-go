@@ -30,15 +30,18 @@ func UnaryRegisterCassandraDBContext(session *gocql.Session) grpc.UnaryServerInt
 }
 
 func RegisterRedisContext(client *redis.Client, ctx context.Context) context.Context {
-	return context.WithValue(ctx, utils.RedisDBContextKey, client)
+	ctx = context.WithValue(ctx, utils.RedisDBContextKey, client)
+	return ctx
 }
 
 func RegisterMongoDBContext(conn *mongo.Client, ctx context.Context) context.Context {
-	return context.WithValue(ctx, utils.MongodbContextKey, conn)
+	ctx = context.WithValue(ctx, utils.MongodbContextKey, conn)
+	return ctx
 }
 
 func RegisterCassandraDBContext(conn *gocql.Session, ctx context.Context) context.Context {
-	return context.WithValue(ctx, utils.CassandraDBContextKey, conn)
+	ctx = context.WithValue(ctx, utils.CassandraDBContextKey, conn)
+	return ctx
 }
 
 func GetMongoDBFromContext(ctx context.Context) *mongo.Client {

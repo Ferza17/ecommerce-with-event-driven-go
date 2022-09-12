@@ -17,7 +17,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/Ferza17/event-driven-account-service/middleware"
-	userService "github.com/Ferza17/event-driven-account-service/services/user"
+	userService "github.com/Ferza17/event-driven-account-service/module/user"
 )
 
 type (
