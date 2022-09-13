@@ -3,7 +3,6 @@ package subscriber
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"sync"
 
 	"github.com/RoseRocket/xerrs"
@@ -29,12 +28,12 @@ func (c *cartSubscriberPresenter) Subscribe(ctx context.Context, ch *amqp.Channe
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		c.subscribeNewCartQueue(ctx, ch)
+		c.subscribeCreateCartEvent(ctx, ch)
 	}()
 	wg.Wait()
 }
 
-func (c *cartSubscriberPresenter) subscribeNewCartQueue(ctx context.Context, ch *amqp.Channel) {
+func (c *cartSubscriberPresenter) subscribeCreateCartEvent(ctx context.Context, ch *amqp.Channel) {
 	var (
 		cartUseCase = cart.GetCartUseCaseFromContext(ctx)
 		tracer      = middleware.GetTracerFromContext(ctx)
@@ -43,7 +42,7 @@ func (c *cartSubscriberPresenter) subscribeNewCartQueue(ctx context.Context, ch 
 	opentracing.SetGlobalTracer(tracer)
 	stopChan := make(chan bool)
 	q, err := ch.QueueDeclare(
-		string(utils.NewCartEvent),
+		string(utils.CrateCartEvent),
 		true,
 		false,
 		false,
@@ -69,10 +68,9 @@ func (c *cartSubscriberPresenter) subscribeNewCartQueue(ctx context.Context, ch 
 	}
 	go func() {
 		for d := range msgs {
-			span, ctx := tracing.StartSpanFromContext(ctx, "subscribeNewCartQueue")
+			span, ctx := tracing.StartSpanFromContext(ctx, "subscribeCreateCartEvent")
 			ctx = opentracing.ContextWithSpan(ctx, span)
 			err = json.Unmarshal(d.Body, &request)
-			log.Println("subscribeNewCartQueue")
 			_, err = cartUseCase.CreateCart(ctx, request)
 			d.Ack(false)
 			span.Finish()

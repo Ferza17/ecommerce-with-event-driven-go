@@ -6,6 +6,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/go-redis/redis/v8"
 	"github.com/gocql/gocql"
+	"github.com/jmoiron/sqlx"
 	"google.golang.org/grpc"
 
 	"github.com/Ferza17/event-driven-product-service/utils"
@@ -23,6 +24,12 @@ func UnaryRegisterCassandraDBContext(session *gocql.Session) grpc.UnaryServerInt
 	}
 }
 
+func UnaryRegisterPostgresSQLContext(client *sqlx.DB) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		return handler(context.WithValue(ctx, utils.PostgresSQLContextKey, client), req)
+	}
+}
+
 func UnaryRegisterElasticsearchContext(client *elasticsearch.Client) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		return handler(context.WithValue(ctx, utils.ElasticsearchContextKey, client), req)
@@ -30,15 +37,23 @@ func UnaryRegisterElasticsearchContext(client *elasticsearch.Client) grpc.UnaryS
 }
 
 func RegisterRedisContext(client *redis.Client, ctx context.Context) context.Context {
-	return context.WithValue(ctx, utils.RedisDBContextKey, client)
+	ctx = context.WithValue(ctx, utils.RedisDBContextKey, client)
+	return ctx
 }
 
 func RegisterCassandraDBContext(conn *gocql.Session, ctx context.Context) context.Context {
-	return context.WithValue(ctx, utils.CassandraDBContextKey, conn)
+	ctx = context.WithValue(ctx, utils.CassandraDBContextKey, conn)
+	return ctx
+}
+
+func RegisterPostgresSQLContext(client *sqlx.DB, ctx context.Context) context.Context {
+	ctx = context.WithValue(ctx, utils.PostgresSQLContextKey, client)
+	return ctx
 }
 
 func RegisterElasticsearchContext(client *elasticsearch.Client, ctx context.Context) context.Context {
-	return context.WithValue(ctx, utils.ElasticsearchContextKey, client)
+	ctx = context.WithValue(ctx, utils.ElasticsearchContextKey, client)
+	return ctx
 }
 
 func GetRedisFromContext(ctx context.Context) *redis.Client {
@@ -47,6 +62,10 @@ func GetRedisFromContext(ctx context.Context) *redis.Client {
 
 func GetCassandraDBFromContext(ctx context.Context) *gocql.Session {
 	return ctx.Value(utils.CassandraDBContextKey).(*gocql.Session)
+}
+
+func GetPostgresSQLFromContext(ctx context.Context) *sqlx.DB {
+	return ctx.Value(utils.PostgresSQLContextKey).(*sqlx.DB)
 }
 
 func GetElasticsearchFromContext(ctx context.Context) *elasticsearch.Client {

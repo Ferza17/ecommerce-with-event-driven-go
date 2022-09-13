@@ -5,6 +5,6 @@ import "cart_message.proto";
 
 
 service CartService {
-  rpc FindCartByCartId(FindCartByCartIdRequest) returns (Cart);
+  rpc FindCartById(FindCartByCartIdRequest) returns (Cart);
   rpc FindCartItems(FindCartItemsRequest) returns (FindCartItemsResponse);
 }

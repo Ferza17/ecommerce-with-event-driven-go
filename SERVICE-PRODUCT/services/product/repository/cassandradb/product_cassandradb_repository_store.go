@@ -1,4 +1,4 @@
-package repository
+package cassandradb
 
 type ProductCassandraDBTransactionCreator interface {
 }

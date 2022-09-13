@@ -16,7 +16,8 @@ func UnaryRegisterTracerContext(tracer opentracing.Tracer) grpc.UnaryServerInter
 }
 
 func RegisterTracerContext(tracer opentracing.Tracer, ctx context.Context) context.Context {
-	return context.WithValue(ctx, utils.TracerContextKey, tracer)
+	ctx = context.WithValue(ctx, utils.TracerContextKey, tracer)
+	return ctx
 }
 
 func GetTracerFromContext(ctx context.Context) opentracing.Tracer {

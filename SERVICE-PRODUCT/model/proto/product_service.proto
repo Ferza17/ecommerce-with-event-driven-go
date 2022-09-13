@@ -4,5 +4,6 @@ option go_package = "/model/pb";
 import "product_message.proto";
 
 service ProductService{
-
+  rpc FindProductById(FindProductByIdRequest) returns (Product);
+  rpc FindProducts(FindProductsRequest) returns (FindProductsResponse);
 }

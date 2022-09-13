@@ -2,3 +2,51 @@ syntax = "proto3";
 package model;
 option go_package = "/model/pb";
 import "google/protobuf/timestamp.proto";
+
+
+message Cart {
+  string id = 1;
+  string userId = 2;
+  double totalPrice = 3;
+  repeated CartItem cartItems = 4;
+  google.protobuf.Timestamp createdAt = 5;
+  google.protobuf.Timestamp updatedAt = 6;
+  google.protobuf.Timestamp discardedAt = 7;
+
+}
+
+message CartItem {
+  string Id = 1;
+  string productId = 2;
+  int64 quantity = 3;
+  double price = 4;
+  string note = 5;
+  google.protobuf.Timestamp createdAt = 6;
+  google.protobuf.Timestamp updatedAt = 7;
+  google.protobuf.Timestamp discardedAt = 8;
+}
+
+message CreateCartRequest {
+  string transactionId = 1;
+  string userId = 2;
+}
+
+message CreateCartResponse {
+  string id = 1;
+  string userId = 2;
+}
+
+message FindCartByCartIdRequest {
+  string id = 1;
+}
+
+message FindCartItemsRequest {
+  string id = 1;
+  string productId = 2;
+  int64 limit = 3;
+  int64 page = 4;
+}
+
+message FindCartItemsResponse {
+  repeated CartItem items = 1;
+}

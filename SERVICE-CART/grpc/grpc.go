@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/Ferza17/event-driven-cart-service/middleware"
+	"github.com/Ferza17/event-driven-cart-service/module/cart"
 )
 
 type (
@@ -69,6 +70,7 @@ func (srv *Server) setup() {
 				middleware.UnaryRegisterTracerContext(srv.tracer),
 				middleware.UnaryRegisterCassandraDBContext(srv.cassandraSession),
 				otgrpc.OpenTracingServerInterceptor(srv.tracer),
+				cart.UnaryRegisterCartUseCaseContext(),
 			),
 		),
 	}

@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	rootCommand.AddCommand(restCommand)
+	rootCommand.AddCommand(graphqlCommand)
 }
 
 var rootCommand = &cobra.Command{

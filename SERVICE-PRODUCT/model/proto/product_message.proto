@@ -2,3 +2,37 @@ syntax = "proto3";
 package model;
 option go_package = "/model/pb";
 import "google/protobuf/timestamp.proto";
+
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string uom = 4;
+  string image = 5;
+  double price = 6;
+  double stock = 7;
+  google.protobuf.Timestamp createdAt = 8;
+  google.protobuf.Timestamp updatedAt = 9;
+  google.protobuf.Timestamp discardedAt = 10;
+}
+
+message FindProductByIdRequest {
+  string id = 1;
+}
+
+message FindProductsRequest {
+  repeated string productIds = 1;
+  repeated string productName = 2;
+  int64 limit = 3;
+  int64 page = 4;
+}
+
+message FindProductsResponse {
+  repeated Product products = 1;
+  int64 total = 2;
+}
+
+message UpdateProductStockByProductIdRequest {
+  string productId = 1;
+  int64 quantity = 2;
+}

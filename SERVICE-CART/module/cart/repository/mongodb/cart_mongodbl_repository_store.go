@@ -21,6 +21,7 @@ type CartMongoDBRepositoryCommand interface {
 }
 
 type CartMongoDBRepositoryQuery interface {
+	FindCartById(ctx context.Context, id string) (response *pb.Cart, err error)
 }
 
 type CartMongoDBRepositoryStore interface {

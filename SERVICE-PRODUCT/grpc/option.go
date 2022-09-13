@@ -4,6 +4,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/go-redis/redis/v8"
 	"github.com/gocql/gocql"
+	"github.com/jmoiron/sqlx"
 	"github.com/opentracing/opentracing-go"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"go.uber.org/zap"
@@ -42,5 +43,11 @@ func NewCassandraSession(session *gocql.Session) Option {
 func NewElasticsearchClient(client *elasticsearch.Client) Option {
 	return func(s *Server) {
 		s.elasticsearchClient = client
+	}
+}
+
+func NewPostgresClient(client *sqlx.DB) Option {
+	return func(s *Server) {
+		s.postgresClient = client
 	}
 }

@@ -10,8 +10,13 @@ const (
 	SagaStatusSuccess SagaStatus = "SUCCESS"
 	SagaStatusFailed  SagaStatus = "FAILED"
 
-	NewUserEvent Event = "NEW-USER-EVENT"
-	NewCartEvent Event = "NEW-CART-EVENT"
-	
-	NewCartEventSaga EventSaga = "NEW-CART-EVENT-SAGA"
+	CrateCartEvent       Event = "CREATE-CART-EVENT"
+	CreateCartItemsEvent Event = "CREATE-CART-ITEMS-EVENT"
+	DeleteCartItemsEvent Event = "DELETE-CART-ITEMS-EVENT"
+	UpdateCartItemsEvent Event = "UPDATE-CART-ITEMS-EVENT"
+
+	CreateCartEventSaga      EventSaga = "CREATE-CART-EVENT-SAGA"
+	CreateCartItemsEventSaga EventSaga = "INSERT-CART-ITEMS-EVENT-SAGA"
+	DeleteCartItemsEventSaga EventSaga = "DELETE-CART-ITEMS-EVENT-SAGA"
+	UpdateCartItemsEventSaga EventSaga = "UPDATE-CART-ITEMS-EVENT-SAGA"
 )

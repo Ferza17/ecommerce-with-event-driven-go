@@ -6,12 +6,16 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/go-redis/redis/v8"
 	"github.com/gocql/gocql"
 	"github.com/hashicorp/consul/api"
+	"github.com/jmoiron/sqlx"
+	"github.com/jmoiron/sqlx/reflectx"
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/lib/pq"
 	"github.com/opentracing/opentracing-go"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/uber/jaeger-client-go"
@@ -21,13 +25,14 @@ import (
 )
 
 var (
-	consulClient     *api.Client
-	esClient         *elasticsearch.Client
-	cassandraSession *gocql.Session
-	logger           *zap.Logger
-	tracer           opentracing.Tracer
-	amqpConn         *amqp.Connection
-	redisClient      *redis.Client
+	consulClient      *api.Client
+	esClient          *elasticsearch.Client
+	cassandraSession  *gocql.Session
+	logger            *zap.Logger
+	tracer            opentracing.Tracer
+	amqpConn          *amqp.Connection
+	redisClient       *redis.Client
+	postgresSQlClient *sqlx.DB
 )
 
 func init() {
@@ -38,6 +43,7 @@ func init() {
 	amqpConn = NewAmqp()
 	redisClient = NewRedisClient()
 	cassandraSession = NewCassandraSession()
+	postgresSQlClient = NewPostgresSQlClient()
 }
 
 func NewLogger() (logger *zap.Logger) {
@@ -166,4 +172,23 @@ func NewElasticsearchClient() *elasticsearch.Client {
 
 	log.Println("Elasticsearch Connected")
 	return client
+}
+
+func NewPostgresSQlClient() *sqlx.DB {
+	db := sqlx.MustOpen("postgres", fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("POSTGRES_HOSTNAME_DB"),
+		os.Getenv("POSTGRES_PORT_DB"),
+		os.Getenv("POSTGRES_USERNAME_DB"),
+		os.Getenv("POSTGRES_PASSWORD_DB"),
+		os.Getenv("POSTGRES_DATABASE_NAME"),
+	))
+	db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
+	// ensure the database are reachable
+	err := db.Ping()
+	if err != nil {
+		log.Fatalf("error while connecting to PostgresSQL: %v\n", err)
+	}
+	log.Println("PostgresSQL Connected")
+	return db
 }

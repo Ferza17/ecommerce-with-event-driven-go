@@ -18,7 +18,7 @@ message Cart {
 message CartItem {
   string Id = 1;
   string productId = 2;
-  string quantity = 3;
+  int64 quantity = 3;
   double price = 4;
   string note = 5;
   google.protobuf.Timestamp createdAt = 6;

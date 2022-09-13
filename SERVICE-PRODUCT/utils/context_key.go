@@ -8,6 +8,7 @@ const (
 	ElasticsearchContextKey key = "elasticsearch_context_key"
 	TracerContextKey        key = "tracer_context_key"
 	CassandraDBContextKey   key = "cassandra_db_context_key"
+	PostgresSQLContextKey   key = "postgres_sql_context_key"
 
 	ProductSpanContextKey key = "product_service_span_key"
 

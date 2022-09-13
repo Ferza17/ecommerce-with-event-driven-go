@@ -3,7 +3,6 @@ package subscriber
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"sync"
 
 	"github.com/RoseRocket/xerrs"
@@ -30,16 +29,16 @@ func (c *userSubscriberPresenter) Subscribe(ctx context.Context, ch *amqp.Channe
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		c.subscribeNewUserEvent(ctx, ch)
+		c.subscribeCreateUserEvent(ctx, ch)
 	}()
 	go func() {
 		defer wg.Done()
-		c.subscribeNewCartEventSaga(ctx, ch)
+		c.subscribeCreateCartEventSaga(ctx, ch)
 	}()
 	wg.Wait()
 }
 
-func (c *userSubscriberPresenter) subscribeNewUserEvent(ctx context.Context, ch *amqp.Channel) {
+func (c *userSubscriberPresenter) subscribeCreateUserEvent(ctx context.Context, ch *amqp.Channel) {
 	var (
 		tracer      = middleware.GetTracerFromContext(ctx)
 		userUseCase = user.GetUserUseCaseFromContext(ctx)
@@ -48,7 +47,7 @@ func (c *userSubscriberPresenter) subscribeNewUserEvent(ctx context.Context, ch 
 	opentracing.SetGlobalTracer(tracer)
 	stopChan := make(chan bool)
 	q, err := ch.QueueDeclare(
-		string(utils.NewUserEvent),
+		string(utils.CreateUserEvent),
 		true,
 		false,
 		false,
@@ -74,7 +73,7 @@ func (c *userSubscriberPresenter) subscribeNewUserEvent(ctx context.Context, ch 
 	}
 	go func() {
 		for d := range msgs {
-			span, ctx := tracing.StartSpanFromContext(ctx, "subscribeNewUserEvent")
+			span, ctx := tracing.StartSpanFromContext(ctx, "subscribeCreateUserEvent")
 			ctx = opentracing.ContextWithSpan(ctx, span)
 			err = json.Unmarshal(d.Body, &request)
 			if request.GetUsername() == "" {
@@ -88,7 +87,7 @@ func (c *userSubscriberPresenter) subscribeNewUserEvent(ctx context.Context, ch 
 	<-stopChan
 }
 
-func (c *userSubscriberPresenter) subscribeNewCartEventSaga(ctx context.Context, ch *amqp.Channel) {
+func (c *userSubscriberPresenter) subscribeCreateCartEventSaga(ctx context.Context, ch *amqp.Channel) {
 	var (
 		userUseCase = user.GetUserUseCaseFromContext(ctx)
 		tracer      = middleware.GetTracerFromContext(ctx)
@@ -97,7 +96,7 @@ func (c *userSubscriberPresenter) subscribeNewCartEventSaga(ctx context.Context,
 	opentracing.SetGlobalTracer(tracer)
 	stopChan := make(chan bool)
 	q, err := ch.QueueDeclare(
-		string(utils.NewCartEventSaga),
+		string(utils.CreateCartEventSaga),
 		true,
 		false,
 		false,
@@ -123,13 +122,9 @@ func (c *userSubscriberPresenter) subscribeNewCartEventSaga(ctx context.Context,
 	}
 	go func() {
 		for d := range msgs {
-			span, ctx := tracing.StartSpanFromContext(ctx, "subscribeNewCartEventSaga")
+			span, ctx := tracing.StartSpanFromContext(ctx, "subscribeCreateCartEventSaga")
 			ctx = opentracing.ContextWithSpan(ctx, span)
 			err = json.Unmarshal(d.Body, &request)
-			log.Println("subscribeNewCartEventSaga")
-			log.Println("========================")
-			log.Println(request)
-			log.Println("========================")
 			if request.Status == utils.SagaStatusFailed {
 				_ = userUseCase.RollbackNewUserSAGA(ctx, request.TransactionId)
 			}

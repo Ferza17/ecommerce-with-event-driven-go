@@ -1,4 +1,4 @@
-package rest
+package graphql
 
 import (
 	"github.com/hashicorp/consul/api"
@@ -25,8 +25,8 @@ func NewTracer(tracer opentracing.Tracer) Option {
 	}
 }
 
-func NewAmqpConn(connection *amqp.Connection) Option {
+func NewRabbitMQConnection(connection *amqp.Connection) Option {
 	return func(s *Server) {
-		s.amqpConn = connection
+		s.rabbitMQConnection = connection
 	}
 }

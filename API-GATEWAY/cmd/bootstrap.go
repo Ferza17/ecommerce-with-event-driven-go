@@ -17,10 +17,10 @@ import (
 )
 
 var (
-	logger       *zap.Logger
-	tracer       opentracing.Tracer
-	consulClient *api.Client
-	amqpConn     *amqp.Connection
+	logger             *zap.Logger
+	tracer             opentracing.Tracer
+	consulClient       *api.Client
+	rabbitMQConnection *amqp.Connection
 )
 
 func init() {
@@ -28,7 +28,7 @@ func init() {
 
 	logger = NewLogger()
 	tracer = NewTracer()
-	amqpConn = NewAmqp()
+	rabbitMQConnection = NewAmqp()
 }
 
 func NewLogger() (logger *zap.Logger) {

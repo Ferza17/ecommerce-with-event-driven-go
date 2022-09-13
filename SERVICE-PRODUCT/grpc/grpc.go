@@ -9,6 +9,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/gocql/gocql"
 	grpcMiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/jmoiron/sqlx"
 	otgrpc "github.com/opentracing-contrib/go-grpc"
 	"github.com/opentracing/opentracing-go"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -32,6 +33,7 @@ type (
 		cassandraSession    *gocql.Session
 		rabbitMQConnection  *amqp.Connection
 		tracer              opentracing.Tracer
+		postgresClient      *sqlx.DB
 	}
 	Option func(s *Server)
 )
@@ -67,9 +69,10 @@ func (srv *Server) setup() {
 				otgrpc.OpenTracingServerInterceptor(srv.tracer),
 				middleware.UnaryRegisterTracerContext(srv.tracer),
 				middleware.UnaryRegisterRedisContext(srv.redisClient),
+				middleware.UnaryRegisterPostgresSQLContext(srv.postgresClient),
+				middleware.UnaryRegisterCassandraDBContext(srv.cassandraSession),
 				middleware.UnaryRegisterRabbitMQAmqpContext(srv.rabbitMQConnection),
 				middleware.UnaryRegisterElasticsearchContext(srv.elasticsearchClient),
-				middleware.UnaryRegisterCassandraDBContext(srv.cassandraSession),
 				product.UnaryRegisterProductUseCaseContext(),
 			),
 		),

@@ -1,23 +1,33 @@
 package usecase
 
 import (
-	"github.com/Ferza17/event-driven-product-service/services/product/repository"
+	"github.com/Ferza17/event-driven-product-service/saga"
+	"github.com/Ferza17/event-driven-product-service/services/product/repository/cassandradb"
+	"github.com/Ferza17/event-driven-product-service/services/product/repository/elasticsearch"
+	"github.com/Ferza17/event-driven-product-service/services/product/repository/postgres"
+	"github.com/Ferza17/event-driven-product-service/services/product/repository/redis"
 )
 
 type productUseCase struct {
-	productElasticsearchRepository repository.ProductElasticsearchRepositoryStore
-	productCassandraDBRepository   repository.ProductCassandraDBRepositoryStore
-	productRedisRepository         repository.ProductRedisRepositoryStore
+	productElasticsearchRepository elasticsearch.ProductElasticsearchRepositoryStore
+	productCassandraDBRepository   cassandradb.ProductCassandraDBRepositoryStore
+	productPostgresRepository      postgres.ProductPostgresRepositoryStore
+	productRedisRepository         redis.ProductRedisRepositoryStore
+	productSaga                    saga.SagaStore
 }
 
 func NewProductUseCase(
-	productElasticsearchRepository repository.ProductElasticsearchRepositoryStore,
-	productCassandraDBRepository repository.ProductCassandraDBRepositoryStore,
-	productCacheRepository repository.ProductRedisRepositoryStore,
+	productElasticsearchRepository elasticsearch.ProductElasticsearchRepositoryStore,
+	productCassandraDBRepository cassandradb.ProductCassandraDBRepositoryStore,
+	productPostgresRepository postgres.ProductPostgresRepositoryStore,
+	productCacheRepository redis.ProductRedisRepositoryStore,
+	productSaga saga.SagaStore,
 ) ProductUseCaseStore {
 	return &productUseCase{
 		productElasticsearchRepository: productElasticsearchRepository,
 		productCassandraDBRepository:   productCassandraDBRepository,
+		productPostgresRepository:      productPostgresRepository,
 		productRedisRepository:         productCacheRepository,
+		productSaga:                    productSaga,
 	}
 }

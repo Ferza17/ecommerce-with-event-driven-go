@@ -21,6 +21,7 @@ var rpcCommand = &cobra.Command{
 			grpc.NewRedisClient(redisClient),
 			grpc.NewRabbitMQConnection(amqpConn),
 			grpc.NewElasticsearchClient(esClient),
+			grpc.NewPostgresClient(postgresSQlClient),
 			grpc.NewCassandraSession(cassandraSession),
 		).Serve()
 	},

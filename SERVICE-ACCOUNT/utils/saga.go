@@ -10,8 +10,8 @@ const (
 	SagaStatusSuccess SagaStatus = "SUCCESS"
 	SagaStatusFailed  SagaStatus = "FAILED"
 
-	NewUserEvent Event = "NEW-USER-EVENT"
-	NewCartEvent Event = "NEW-CART-EVENT"
+	CreateUserEvent Event = "CREATE-USER-EVENT"
+	CreateCartEvent Event = "CREATE-CART-EVENT"
 
-	NewCartEventSaga EventSaga = "NEW-CART-EVENT-SAGA"
+	CreateCartEventSaga EventSaga = "CREATE-CART-EVENT-SAGA"
 )

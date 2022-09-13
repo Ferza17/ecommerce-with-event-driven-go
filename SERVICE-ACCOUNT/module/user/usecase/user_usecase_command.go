@@ -52,11 +52,11 @@ func (u *userUseCase) CreateUser(ctx context.Context, request *pb.RegisterReques
 		return
 	}
 
-	if err = u.userPublisher.PublishOrdinaryMessage(ctx, utils.NewCartEvent, string(cartRequest)); err != nil {
+	if err = u.userPublisher.PublishOrdinaryMessage(ctx, utils.CreateCartEvent, string(cartRequest)); err != nil {
 		err = u.userMongoDBRepository.AbortTransaction(ctx, session)
 		return
 	}
-	
+
 	err = u.userMongoDBRepository.CommitTransaction(ctx, session)
 	return
 }

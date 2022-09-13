@@ -1,4 +1,4 @@
-package rest
+package graphql
 
 import (
 	"fmt"
@@ -22,15 +22,15 @@ import (
 
 type (
 	Server struct {
-		codename     string
-		host         string
-		port         string
-		amqpConn     *amqp.Connection
-		logger       *zap.Logger
-		Router       *chi.Mux
-		tracer       opentracing.Tracer
-		httpServer   *http.Server
-		consulClient *api.Client
+		codename           string
+		host               string
+		port               string
+		rabbitMQConnection *amqp.Connection
+		logger             *zap.Logger
+		router             *chi.Mux
+		tracer             opentracing.Tracer
+		httpServer         *http.Server
+		consulClient       *api.Client
 	}
 	Option func(s *Server)
 )
@@ -53,17 +53,17 @@ func (srv *Server) Serve() {
 		srv.logger.Info(fmt.Sprintf("%s %s", method, route))
 		return nil
 	}
-	if err := chi.Walk(srv.Router, walkFunc); err != nil {
+	if err := chi.Walk(srv.router, walkFunc); err != nil {
 		log.Panicln(errors.Cause(err))
 	}
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", srv.host, srv.port), srv.Router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", srv.host, srv.port), srv.router))
 }
 
 func (srv *Server) setup() {
-	srv.Router = srv.routes()
+	srv.router = srv.routes()
 	srv.httpServer = &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", srv.host, srv.port),
-		Handler: srv.Router,
+		Handler: srv.router,
 	}
 }
 
@@ -86,7 +86,7 @@ func (srv *Server) routes() *chi.Mux {
 		l.Logger(srv.logger),
 		middleware.Host(srv.codename),
 		middleware.Header(),
-		middleware.RegisterRabbitMQAmqpHTTPContext(srv.amqpConn),
+		middleware.RegisterRabbitMQAmqpHTTPContext(srv.rabbitMQConnection),
 		middleware.RegisterTracerHTTPContext(srv.tracer),
 		chim.Heartbeat("/ping"),
 	)
@@ -94,6 +94,5 @@ func (srv *Server) routes() *chi.Mux {
 		response.Yay(writer, request, http.StatusOK, "Good")
 		return
 	})
-	routes(r)
 	return r
 }
