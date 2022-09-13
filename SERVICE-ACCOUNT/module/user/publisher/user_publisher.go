@@ -21,7 +21,7 @@ func NewUserPublisher(rabbitMQConnection *amqp.Connection) UserPublisherStore {
 	}
 }
 
-func (p *userPublisher) PublishOrdinaryMessage(ctx context.Context, queue utils.Queue, payload string) (err error) {
+func (p *userPublisher) PublishOrdinaryMessage(ctx context.Context, queue utils.Event, payload string) (err error) {
 	ch, err := p.rabbitMQConnection.Channel()
 	if err != nil {
 		err = xerrs.Mask(err, utils.ErrInternalServerError)
@@ -55,7 +55,7 @@ func (p *userPublisher) PublishOrdinaryMessage(ctx context.Context, queue utils.
 	return
 }
 
-func (p *userPublisher) PublishSagaMessage(ctx context.Context, sagaQueue utils.SagaQueue, payload *saga.Step) (err error) {
+func (p *userPublisher) PublishSagaMessage(ctx context.Context, sagaQueue utils.EventSaga, payload *saga.Step) (err error) {
 	ch, err := p.rabbitMQConnection.Channel()
 	if err != nil {
 		err = xerrs.Mask(err, utils.ErrInternalServerError)
@@ -80,7 +80,7 @@ func (p *userPublisher) PublishSagaMessage(ctx context.Context, sagaQueue utils.
 	}
 	if _, err = ch.PublishWithDeferredConfirmWithContext(
 		ctx,
-		amqp.ExchangeFanout,
+		"new-user-saga",
 		q.Name,
 		false,
 		false,

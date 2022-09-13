@@ -7,8 +7,8 @@ import (
 	"github.com/RoseRocket/xerrs"
 	amqp "github.com/rabbitmq/amqp091-go"
 
-	cartConsumer "github.com/Ferza17/event-driven-cart-service/module/cart/presenter/consumer"
-	"github.com/Ferza17/event-driven-cart-service/utils"
+	userConsumer "github.com/Ferza17/event-driven-account-service/module/user/presenter/subscriber"
+	"github.com/Ferza17/event-driven-account-service/utils"
 )
 
 func Consumer(ctx context.Context, conn *amqp.Connection) {
@@ -22,7 +22,9 @@ func Consumer(ctx context.Context, conn *amqp.Connection) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		cartConsumer.NewCartConsumerPresenter().Consume(ctx, ch)
+		userConsumer.
+			NewUserSubscriberPresenter().
+			Subscribe(ctx, ch)
 	}()
 	wg.Wait()
 }

@@ -1,4 +1,4 @@
-package consumer
+package subscriber
 
 import (
 	"context"
@@ -10,45 +10,45 @@ import (
 	"github.com/opentracing/opentracing-go"
 	amqp "github.com/rabbitmq/amqp091-go"
 
-	"github.com/Ferza17/event-driven-cart-service/helper/tracing"
-	"github.com/Ferza17/event-driven-cart-service/middleware"
-	"github.com/Ferza17/event-driven-cart-service/model/pb"
-	"github.com/Ferza17/event-driven-cart-service/module/cart"
-	"github.com/Ferza17/event-driven-cart-service/saga"
-	"github.com/Ferza17/event-driven-cart-service/utils"
+	"github.com/Ferza17/event-driven-account-service/helper/tracing"
+	"github.com/Ferza17/event-driven-account-service/middleware"
+	"github.com/Ferza17/event-driven-account-service/model/pb"
+	"github.com/Ferza17/event-driven-account-service/module/user"
+	"github.com/Ferza17/event-driven-account-service/saga"
+	"github.com/Ferza17/event-driven-account-service/utils"
 )
 
-type cartConsumerPresenter struct {
+type userSubscriberPresenter struct {
 }
 
-func NewCartConsumerPresenter() *cartConsumerPresenter {
-	return &cartConsumerPresenter{}
+func NewUserSubscriberPresenter() *userSubscriberPresenter {
+	return &userSubscriberPresenter{}
 }
 
-func (c *cartConsumerPresenter) Consume(ctx context.Context, ch *amqp.Channel) {
+func (c *userSubscriberPresenter) Subscribe(ctx context.Context, ch *amqp.Channel) {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		c.consumeNewCartQueue(ctx, ch)
+		c.subscribeNewUserEvent(ctx, ch)
 	}()
 	go func() {
 		defer wg.Done()
-		c.consumeNewUserSAGAQueue(ctx, ch)
+		c.subscribeNewCartEventSaga(ctx, ch)
 	}()
 	wg.Wait()
 }
 
-func (c *cartConsumerPresenter) consumeNewCartQueue(ctx context.Context, ch *amqp.Channel) {
+func (c *userSubscriberPresenter) subscribeNewUserEvent(ctx context.Context, ch *amqp.Channel) {
 	var (
-		cartUseCase = cart.GetCartUseCaseFromContext(ctx)
 		tracer      = middleware.GetTracerFromContext(ctx)
-		request     *pb.CreateCartRequest
+		userUseCase = user.GetUserUseCaseFromContext(ctx)
+		request     pb.RegisterRequest
 	)
 	opentracing.SetGlobalTracer(tracer)
 	stopChan := make(chan bool)
 	q, err := ch.QueueDeclare(
-		string(utils.NewCartQueue),
+		string(utils.NewUserEvent),
 		true,
 		false,
 		false,
@@ -74,11 +74,13 @@ func (c *cartConsumerPresenter) consumeNewCartQueue(ctx context.Context, ch *amq
 	}
 	go func() {
 		for d := range msgs {
-			span, ctx := tracing.StartSpanFromContext(ctx, "consumeNewCartQueue")
+			span, ctx := tracing.StartSpanFromContext(ctx, "subscribeNewUserEvent")
 			ctx = opentracing.ContextWithSpan(ctx, span)
 			err = json.Unmarshal(d.Body, &request)
-			log.Println("consumeNewCartQueue")
-			_, err = cartUseCase.CreateCart(ctx, request)
+			if request.GetUsername() == "" {
+				return
+			}
+			_, err = userUseCase.CreateUser(ctx, &request)
 			d.Ack(false)
 			span.Finish()
 		}
@@ -86,16 +88,16 @@ func (c *cartConsumerPresenter) consumeNewCartQueue(ctx context.Context, ch *amq
 	<-stopChan
 }
 
-func (c *cartConsumerPresenter) consumeNewUserSAGAQueue(ctx context.Context, ch *amqp.Channel) {
+func (c *userSubscriberPresenter) subscribeNewCartEventSaga(ctx context.Context, ch *amqp.Channel) {
 	var (
-		cartUseCase = cart.GetCartUseCaseFromContext(ctx)
+		userUseCase = user.GetUserUseCaseFromContext(ctx)
 		tracer      = middleware.GetTracerFromContext(ctx)
 		request     saga.Step
 	)
 	opentracing.SetGlobalTracer(tracer)
 	stopChan := make(chan bool)
 	q, err := ch.QueueDeclare(
-		string(utils.NewUserSagaQueue),
+		string(utils.NewCartEventSaga),
 		true,
 		false,
 		false,
@@ -121,12 +123,15 @@ func (c *cartConsumerPresenter) consumeNewUserSAGAQueue(ctx context.Context, ch 
 	}
 	go func() {
 		for d := range msgs {
-			span, ctx := tracing.StartSpanFromContext(ctx, "consumeNewUserSAGAQueue")
+			span, ctx := tracing.StartSpanFromContext(ctx, "subscribeNewCartEventSaga")
 			ctx = opentracing.ContextWithSpan(ctx, span)
 			err = json.Unmarshal(d.Body, &request)
-			log.Println("consumeNewUserSAGAQueue")
+			log.Println("subscribeNewCartEventSaga")
+			log.Println("========================")
+			log.Println(request)
+			log.Println("========================")
 			if request.Status == utils.SagaStatusFailed {
-				err = cartUseCase.RollbackNewUserSAGA(ctx, request.TransactionId)
+				_ = userUseCase.RollbackNewUserSAGA(ctx, request.TransactionId)
 			}
 			d.Ack(false)
 			span.Finish()

@@ -7,7 +7,6 @@ import (
 	"github.com/Ferza17/event-driven-account-service/helper/hash"
 	"github.com/Ferza17/event-driven-account-service/helper/tracing"
 	"github.com/Ferza17/event-driven-account-service/model/pb"
-	"github.com/Ferza17/event-driven-account-service/saga"
 	"github.com/Ferza17/event-driven-account-service/utils"
 )
 
@@ -53,20 +52,11 @@ func (u *userUseCase) CreateUser(ctx context.Context, request *pb.RegisterReques
 		return
 	}
 
-	if err = u.userPublisher.PublishOrdinaryMessage(ctx, utils.NewCartQueue, string(cartRequest)); err != nil {
+	if err = u.userPublisher.PublishOrdinaryMessage(ctx, utils.NewCartEvent, string(cartRequest)); err != nil {
 		err = u.userMongoDBRepository.AbortTransaction(ctx, session)
 		return
 	}
-
-	if err = u.userPublisher.PublishSagaMessage(ctx, utils.NewUserSagaQueue, &saga.Step{
-		TransactionId: request.GetTransactionId(),
-		Counter:       1,
-		Status:        utils.SagaStatusSuccess,
-	}); err != nil {
-		err = u.userMongoDBRepository.AbortTransaction(ctx, session)
-		return
-	}
-
+	
 	err = u.userMongoDBRepository.CommitTransaction(ctx, session)
 	return
 }

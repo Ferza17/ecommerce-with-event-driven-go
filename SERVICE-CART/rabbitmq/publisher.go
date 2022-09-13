@@ -7,24 +7,22 @@ import (
 	"github.com/RoseRocket/xerrs"
 	amqp "github.com/rabbitmq/amqp091-go"
 
-	userConsumer "github.com/Ferza17/event-driven-account-service/module/user/presenter/consumer"
-	"github.com/Ferza17/event-driven-account-service/utils"
+	cartConsumer "github.com/Ferza17/event-driven-cart-service/module/cart/presenter/subscriber"
+	"github.com/Ferza17/event-driven-cart-service/utils"
 )
 
-func Consumer(ctx context.Context, conn *amqp.Connection) {
+func Subscriber(ctx context.Context, conn *amqp.Connection) {
 	ch, err := conn.Channel()
 	if err != nil {
 		err = xerrs.Mask(err, utils.ErrInternalServerError)
 		return
 	}
-	// Register Consumer
+	// Register Subscriber
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		userConsumer.
-			NewUserConsumerPresenter().
-			Consume(ctx, ch)
+		cartConsumer.NewCartSubscriberPresenter().Subscribe(ctx, ch)
 	}()
 	wg.Wait()
 }

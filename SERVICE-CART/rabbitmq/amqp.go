@@ -36,7 +36,7 @@ func NewServer(option ...Option) *Server {
 
 func (srv *Server) Serve() {
 	ctx := srv.setup()
-	Consumer(ctx, srv.amqpConn)
+	Subscriber(ctx, srv.amqpConn)
 }
 
 func (srv *Server) setup() context.Context {

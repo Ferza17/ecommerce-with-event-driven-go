@@ -28,7 +28,7 @@ func (u *cartUseCase) CreateCart(ctx context.Context, request *pb.CreateCartRequ
 
 	session, err := u.cartMongoDBRepository.CreateNoSQLSession(ctx)
 	if err != nil {
-		if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewUserSagaQueue, sagaFailed); err != nil {
+		if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewCartEventSaga, sagaFailed); err != nil {
 			return
 		}
 		return
@@ -36,7 +36,7 @@ func (u *cartUseCase) CreateCart(ctx context.Context, request *pb.CreateCartRequ
 	defer session.EndSession(ctx)
 
 	if err = u.cartMongoDBRepository.StartTransaction(ctx, session); err != nil {
-		if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewUserSagaQueue, sagaSuccess); err != nil {
+		if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewCartEventSaga, sagaSuccess); err != nil {
 			return
 		}
 		return
@@ -44,7 +44,7 @@ func (u *cartUseCase) CreateCart(ctx context.Context, request *pb.CreateCartRequ
 
 	cartLastState, err := u.cartMongoDBRepository.CreateCart(ctx, session, request)
 	if err != nil {
-		if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewUserSagaQueue, sagaFailed); err != nil {
+		if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewCartEventSaga, sagaFailed); err != nil {
 			return
 		}
 		err = u.cartMongoDBRepository.AbortTransaction(ctx, session)
@@ -52,15 +52,15 @@ func (u *cartUseCase) CreateCart(ctx context.Context, request *pb.CreateCartRequ
 	}
 
 	if err = u.cartRedisRepository.SetCartLastStateByTransactionId(ctx, request.GetTransactionId(), cartLastState); err != nil {
-		if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewUserSagaQueue, sagaFailed); err != nil {
+		if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewCartEventSaga, sagaFailed); err != nil {
 			return
 		}
 		err = u.cartMongoDBRepository.AbortTransaction(ctx, session)
 		return
 	}
 
-	if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewUserSagaQueue, sagaSuccess); err != nil {
-		if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewUserSagaQueue, sagaFailed); err != nil {
+	if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewCartEventSaga, sagaSuccess); err != nil {
+		if err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewCartEventSaga, sagaFailed); err != nil {
 			return
 		}
 		err = u.cartMongoDBRepository.AbortTransaction(ctx, session)
@@ -68,7 +68,7 @@ func (u *cartUseCase) CreateCart(ctx context.Context, request *pb.CreateCartRequ
 	}
 
 	if err = u.cartMongoDBRepository.CommitTransaction(ctx, session); err != nil {
-		err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewUserSagaQueue, sagaFailed)
+		err = u.cartPublisher.PublishSagaMessage(ctx, utils.NewCartEventSaga, sagaFailed)
 	}
 	return
 }

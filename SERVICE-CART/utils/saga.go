@@ -1,8 +1,8 @@
 package utils
 
 type (
-	Queue      string
-	SagaQueue  string
+	Event      string
+	EventSaga  string
 	SagaStatus string
 )
 
@@ -10,8 +10,8 @@ const (
 	SagaStatusSuccess SagaStatus = "SUCCESS"
 	SagaStatusFailed  SagaStatus = "FAILED"
 
-	NewUserQueue Queue = "NEW-USER-QUEUE"
-	NewCartQueue Queue = "NEW-CART-QUEUE"
-
-	NewUserSagaQueue SagaQueue = "NEW-USER-SAGA-QUEUE"
+	NewUserEvent Event = "NEW-USER-EVENT"
+	NewCartEvent Event = "NEW-CART-EVENT"
+	
+	NewCartEventSaga EventSaga = "NEW-CART-EVENT-SAGA"
 )
