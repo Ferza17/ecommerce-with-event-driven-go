@@ -12,3 +12,4 @@
 - [ ] Store Event on Cassandra
 - [X] Implement gRPC
 - [X] Implement message queuing
+- [ ] Implement Distributed Tracing
