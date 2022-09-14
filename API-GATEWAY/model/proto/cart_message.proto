@@ -26,6 +26,7 @@ message CartItem {
   google.protobuf.Timestamp discardedAt = 8;
 }
 
+// CreateCart Session
 message CreateCartRequest {
   string transactionId = 1;
   string userId = 2;
@@ -36,10 +37,24 @@ message CreateCartResponse {
   string userId = 2;
 }
 
+// CreateCartItem Session
+message CreateCartItem {
+  string productId = 1;
+  int64 quantity = 2;
+  double price = 3;
+  string note = 4;
+}
+
+message CreateCartItemRequest {
+  repeated CreateCartItem items = 1;
+}
+
+//FindCartByCartIdRequest
 message FindCartByCartIdRequest {
   string id = 1;
 }
 
+// FindCartItems Session
 message FindCartItemsRequest {
   string id = 1;
   string productId = 2;

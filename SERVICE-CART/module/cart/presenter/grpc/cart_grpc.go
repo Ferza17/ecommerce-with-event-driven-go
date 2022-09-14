@@ -31,7 +31,7 @@ func (h *cartGRPCPresenter) FindCartById(ctx context.Context, request *pb.FindCa
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)
 	if response, err = cartUseCase.FindCartById(ctx, request); err != nil {
-		err = errorHandler.RpcError(err)
+		err = errorHandler.RpcErrorHandler(err)
 	}
 	return
 }

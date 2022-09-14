@@ -31,7 +31,7 @@ func (p *userGRPCPresenter) Login(ctx context.Context, request *pb.LoginRequest)
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)
 	if response, err = userUseCase.FindUserByEmailAndPassword(ctx, request); err != nil {
-		err = errorHandler.RpcError(err)
+		err = errorHandler.RpcErrorHandler(err)
 	}
 	return
 }
@@ -47,7 +47,7 @@ func (p *userGRPCPresenter) FindUserById(ctx context.Context, request *pb.FindUs
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)
 	if response, err = userUseCase.FindUserById(ctx, request); err != nil {
-		err = errorHandler.RpcError(err)
+		err = errorHandler.RpcErrorHandler(err)
 	}
 	return
 }

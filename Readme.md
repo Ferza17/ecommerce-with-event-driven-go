@@ -5,7 +5,7 @@
 
 
 ### TODO
-- [ ] Implement GraphQL on API-GATEWAY
+- [X] Implement GraphQL on API-GATEWAY
 - [X] Implement CQRS
 - [X] Implement SAGA
 - [ ] Implement Event Sourcing

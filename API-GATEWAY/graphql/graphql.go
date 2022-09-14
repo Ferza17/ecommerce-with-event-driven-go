@@ -16,21 +16,24 @@ import (
 	l "github.com/treastech/logger"
 	"go.uber.org/zap"
 
-	"github.com/Ferza17/event-driven-api-gateway/helper/response"
 	"github.com/Ferza17/event-driven-api-gateway/middleware"
+	"github.com/Ferza17/event-driven-api-gateway/model/pb"
 )
 
 type (
 	Server struct {
-		codename           string
-		host               string
-		port               string
-		rabbitMQConnection *amqp.Connection
-		logger             *zap.Logger
-		router             *chi.Mux
-		tracer             opentracing.Tracer
-		httpServer         *http.Server
-		consulClient       *api.Client
+		codename                 string
+		host                     string
+		port                     string
+		rabbitMQConnection       *amqp.Connection
+		logger                   *zap.Logger
+		router                   *chi.Mux
+		tracer                   opentracing.Tracer
+		httpServer               *http.Server
+		consulClient             *api.Client
+		userServiceGrpcClient    pb.UserServiceClient
+		productServiceGrpcClient pb.ProductServiceClient
+		cartServiceGrpcClient    pb.CartServiceClient
 	}
 	Option func(s *Server)
 )
@@ -86,13 +89,14 @@ func (srv *Server) routes() *chi.Mux {
 		l.Logger(srv.logger),
 		middleware.Host(srv.codename),
 		middleware.Header(),
-		middleware.RegisterRabbitMQAmqpHTTPContext(srv.rabbitMQConnection),
 		middleware.RegisterTracerHTTPContext(srv.tracer),
+		middleware.RegisterRabbitMQAmqpHTTPContext(srv.rabbitMQConnection),
+		middleware.RegisterUserServiceGrpcClientHttpContext(srv.userServiceGrpcClient),
+		middleware.RegisterProductServiceGrpcClientHttpContext(srv.productServiceGrpcClient),
+		middleware.RegisterCartServiceGrpcClientHttpContext(srv.cartServiceGrpcClient),
 		chim.Heartbeat("/ping"),
 	)
-	r.Get("/check", func(writer http.ResponseWriter, request *http.Request) {
-		response.Yay(writer, request, http.StatusOK, "Good")
-		return
-	})
+	// GraphQL
+	routes(r)
 	return r
 }

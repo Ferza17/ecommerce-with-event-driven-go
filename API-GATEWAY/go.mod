@@ -3,7 +3,7 @@ module github.com/Ferza17/event-driven-api-gateway
 go 1.19
 
 require (
-	github.com/99designs/gqlgen v0.17.16
+	github.com/99designs/gqlgen v0.17.17
 	github.com/RoseRocket/xerrs v1.2.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
@@ -16,7 +16,7 @@ require (
 	github.com/spf13/cobra v1.5.0
 	github.com/treastech/logger v0.0.0-20180705232552-e381e9ecf2e3
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
-	github.com/vektah/gqlparser/v2 v2.5.0
+	github.com/vektah/gqlparser/v2 v2.5.1
 	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	google.golang.org/grpc v1.37.1
@@ -31,6 +31,7 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-chi/chi v1.5.4 // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/graphql-go/graphql v0.8.0 // indirect
 	github.com/hashicorp/consul/sdk v0.11.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/hashicorp/go-hclog v0.14.1 // indirect

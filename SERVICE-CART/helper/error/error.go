@@ -7,7 +7,7 @@ import (
 	"github.com/Ferza17/event-driven-cart-service/utils"
 )
 
-func RpcError(errArgs error) error {
+func RpcErrorHandler(errArgs error) error {
 	var (
 		mapError = map[string]error{
 			// Internal Error

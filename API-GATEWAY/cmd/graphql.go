@@ -10,7 +10,7 @@ import (
 )
 
 var graphqlCommand = &cobra.Command{
-	Use: "schema",
+	Use: "graphql",
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Println("Starting GraphQL API server ...")
 		graphql.NewServer(
@@ -21,6 +21,9 @@ var graphqlCommand = &cobra.Command{
 			graphql.NewTracer(tracer),
 			graphql.NewLogger(logger),
 			graphql.NewRabbitMQConnection(rabbitMQConnection),
+			graphql.NewUserServiceGrpcClientConnection(userServiceGrpcClient),
+			graphql.NewProductServiceGrpcClientConnection(productServiceGrpcClient),
+			graphql.NewCartServiceGrpcClientConnection(cartServiceGrpcClient),
 		).Serve()
 	},
 }

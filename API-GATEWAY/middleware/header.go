@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 	"regexp"
+
+	"github.com/Ferza17/event-driven-api-gateway/utils"
 )
 
 type RequestHeader struct {
@@ -15,14 +17,12 @@ type RequestHeader struct {
 	ForwardedIP   string
 }
 
-const headersKey = "headers"
-
 var regexClientIdPattern = regexp.MustCompile("\\w+\\.\\w+")
 
 func Header() func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			var ctx = context.WithValue(r.Context(), headersKey, &RequestHeader{
+			var ctx = context.WithValue(r.Context(), utils.HeadersContextKey, &RequestHeader{
 				ClientId:      r.Header.Get("X-Client-Id"),
 				ClientVersion: r.Header.Get("X-Client-Version"),
 				DataVersion:   r.Header.Get("X-Data-Version"),
@@ -37,5 +37,5 @@ func Header() func(next http.Handler) http.Handler {
 }
 
 func GetRequestHeader(r *http.Request) *RequestHeader {
-	return r.Context().Value(headersKey).(*RequestHeader)
+	return r.Context().Value(utils.HeadersContextKey).(*RequestHeader)
 }

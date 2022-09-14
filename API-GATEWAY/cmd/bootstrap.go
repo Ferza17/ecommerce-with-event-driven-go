@@ -14,13 +14,19 @@ import (
 	"github.com/uber/jaeger-client-go/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"google.golang.org/grpc"
+
+	"github.com/Ferza17/event-driven-api-gateway/model/pb"
 )
 
 var (
-	logger             *zap.Logger
-	tracer             opentracing.Tracer
-	consulClient       *api.Client
-	rabbitMQConnection *amqp.Connection
+	logger                   *zap.Logger
+	tracer                   opentracing.Tracer
+	consulClient             *api.Client
+	rabbitMQConnection       *amqp.Connection
+	userServiceGrpcClient    pb.UserServiceClient
+	cartServiceGrpcClient    pb.CartServiceClient
+	productServiceGrpcClient pb.ProductServiceClient
 )
 
 func init() {
@@ -28,7 +34,11 @@ func init() {
 
 	logger = NewLogger()
 	tracer = NewTracer()
-	rabbitMQConnection = NewAmqp()
+	rabbitMQConnection = NewRabbitMQConnection()
+	userServiceGrpcClient = NewUserServiceGrpcClient()
+	cartServiceGrpcClient = NewCartServiceGrpcClient()
+	productServiceGrpcClient = NewProductServiceGrpcClient()
+
 }
 
 func NewLogger() (logger *zap.Logger) {
@@ -91,7 +101,7 @@ func NewConsulClient() *api.Client {
 	return client
 }
 
-func NewAmqp() *amqp.Connection {
+func NewRabbitMQConnection() *amqp.Connection {
 	conn, err := amqp.Dial(
 		fmt.Sprintf("amqp://%s:%s@%s:%s/",
 			os.Getenv("RABBITMQ_USERNAME"),
@@ -100,7 +110,35 @@ func NewAmqp() *amqp.Connection {
 			os.Getenv("RABBITMQ_PORT"),
 		))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("error while connecting to RabbitMQ: %v\n", err)
 	}
+	log.Println("RabbitMQ connected")
 	return conn
+}
+
+func NewUserServiceGrpcClient() pb.UserServiceClient {
+	cc, err := grpc.Dial(os.Getenv("USER_GRPC_HOST"), grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("error while connecting to user grpc service: %v\n", err)
+	}
+	log.Println("user grpc service connected")
+	return pb.NewUserServiceClient(cc)
+}
+
+func NewProductServiceGrpcClient() pb.ProductServiceClient {
+	cc, err := grpc.Dial(os.Getenv("PRODUCT_GRPC_HOST"), grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("error while connecting to product grpc service: %v\n", err)
+	}
+	log.Println("product grpc service connected")
+	return pb.NewProductServiceClient(cc)
+}
+
+func NewCartServiceGrpcClient() pb.CartServiceClient {
+	cc, err := grpc.Dial(os.Getenv("CART_GRPC_HOST"), grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("error while connecting to cart grpc service: %v\n", err)
+	}
+	log.Println("cart grpc service connected")
+	return pb.NewCartServiceClient(cc)
 }
