@@ -6,6 +6,7 @@ import (
 	"github.com/RoseRocket/xerrs"
 	amqp "github.com/rabbitmq/amqp091-go"
 
+	"github.com/Ferza17/event-driven-api-gateway/helper/tracing"
 	"github.com/Ferza17/event-driven-api-gateway/utils"
 )
 
@@ -20,6 +21,8 @@ func NewUserPublisher(rabbitMQConnection *amqp.Connection) UserPublisherStore {
 }
 
 func (p *userPublisher) PublishOrdinaryMessage(ctx context.Context, queue utils.Event, payload string) (err error) {
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserPublisher-PublishOrdinaryMessage")
+	defer span.Finish()
 	ch, err := p.rabbitMQConnection.Channel()
 	if err != nil {
 		err = xerrs.Mask(err, utils.ErrInternalServerError)

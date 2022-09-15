@@ -72,6 +72,7 @@ func NewTracer() opentracing.Tracer {
 	if err != nil {
 		log.Fatalf("ERROR: cannot init Jaeger: %v\n", err)
 	}
+	opentracing.SetGlobalTracer(tracer)
 	log.Println("tracer connected")
 	return tc
 }

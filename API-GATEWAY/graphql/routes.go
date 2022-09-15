@@ -18,5 +18,6 @@ func routes(r *chi.Mux) {
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Mount("/users", userRoutes.Routes())
 		r.Mount("/carts", cartRoutes.Routes())
+		//r.Mount("/products")
 	})
 }

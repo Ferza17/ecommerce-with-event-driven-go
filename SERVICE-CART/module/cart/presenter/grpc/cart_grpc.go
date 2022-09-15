@@ -3,11 +3,8 @@ package grpc
 import (
 	"context"
 
-	"github.com/opentracing/opentracing-go"
-
 	errorHandler "github.com/Ferza17/event-driven-cart-service/helper/error"
 	"github.com/Ferza17/event-driven-cart-service/helper/tracing"
-	"github.com/Ferza17/event-driven-cart-service/middleware"
 	"github.com/Ferza17/event-driven-cart-service/model/pb"
 	"github.com/Ferza17/event-driven-cart-service/module/cart"
 )
@@ -23,13 +20,10 @@ func NewCartGRPCPresenter() *cartGRPCPresenter {
 func (h *cartGRPCPresenter) FindCartByUserId(ctx context.Context, request *pb.FindCartByUserIdRequest) (response *pb.Cart, err error) {
 	var (
 		cartUseCase = cart.GetCartUseCaseFromContext(ctx)
-		tracer      = middleware.GetTracerFromContext(ctx)
-		span        = tracing.StartSpanFromRpc(tracer, "FindCartByUserId")
 	)
 	response = &pb.Cart{}
-	opentracing.SetGlobalTracer(tracer)
+	span, ctx := tracing.StartSpanFromContext(ctx, "CartGRPCPresenter-FindCartByUserId")
 	defer span.Finish()
-	ctx = opentracing.ContextWithSpan(ctx, span)
 	if response, err = cartUseCase.FindCartByUserId(ctx, request); err != nil {
 		err = errorHandler.RpcErrorHandler(err)
 	}

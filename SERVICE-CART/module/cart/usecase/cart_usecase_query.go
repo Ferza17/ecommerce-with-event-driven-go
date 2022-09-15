@@ -15,6 +15,5 @@ func (u *cartUseCase) FindCartByUserId(ctx context.Context, request *pb.FindCart
 }
 
 func (u *cartUseCase) FindCartItems(ctx context.Context, request *pb.FindCartItemsRequest) (response *pb.FindCartItemsResponse, err error) {
-	//TODO implement me
-	panic("implement me")
+	return
 }

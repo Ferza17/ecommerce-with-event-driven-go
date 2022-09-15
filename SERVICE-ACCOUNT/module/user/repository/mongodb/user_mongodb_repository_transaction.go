@@ -11,7 +11,7 @@ import (
 )
 
 func (q *userMongoDBRepository) CreateNoSQLSession(ctx context.Context) (session mongo.Session, err error) {
-	span, ctx := tracing.StartSpanFromContext(ctx, "UserMongoDBRepository-CreateNoSQLSession")
+	span, _ := tracing.StartSpanFromContext(ctx, "UserMongoDBRepository-CreateNoSQLSession")
 	defer span.Finish()
 	session, err = q.db.StartSession()
 	if err != nil {

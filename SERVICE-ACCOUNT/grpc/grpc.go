@@ -64,12 +64,12 @@ func (srv *Server) setup() {
 	opts := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
 			grpcMiddleware.ChainUnaryServer(
+				otgrpc.OpenTracingServerInterceptor(srv.tracer),
 				middleware.UnaryRegisterMongoDBContext(srv.mongodbClient),
 				middleware.UnaryRegisterRedisContext(srv.redisClient),
 				middleware.UnaryRegisterRabbitMQAmqpContext(srv.rabbitMQConnection),
 				middleware.UnaryRegisterTracerContext(srv.tracer),
 				middleware.UnaryRegisterCassandraDBContext(srv.cassandraSession),
-				otgrpc.OpenTracingServerInterceptor(srv.tracer),
 				userService.UnaryRegisterUserUseCaseContext(),
 			),
 		),

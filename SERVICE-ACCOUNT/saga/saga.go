@@ -27,10 +27,3 @@ func (s *saga) ParseStringToStep(rawString string) (response Step, err error) {
 	}
 	return
 }
-
-func (s *saga) IsFailed(step *Step) bool {
-	if step.Status == utils.SagaStatusFailed {
-		return true
-	}
-	return false
-}

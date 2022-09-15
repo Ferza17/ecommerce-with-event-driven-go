@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/consul/api"
 	_ "github.com/joho/godotenv/autoload"
+	otgrpc "github.com/opentracing-contrib/go-grpc"
 	"github.com/opentracing/opentracing-go"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/uber/jaeger-client-go"
@@ -117,7 +118,13 @@ func NewRabbitMQConnection() *amqp.Connection {
 }
 
 func NewUserServiceGrpcClient() pb.UserServiceClient {
-	cc, err := grpc.Dial(os.Getenv("USER_GRPC_HOST"), grpc.WithInsecure())
+	cc, err := grpc.Dial(
+		os.Getenv("USER_GRPC_HOST"),
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(
+			otgrpc.OpenTracingClientInterceptor(tracer),
+		),
+	)
 	if err != nil {
 		log.Fatalf("error while connecting to user grpc service: %v\n", err)
 	}
@@ -126,7 +133,13 @@ func NewUserServiceGrpcClient() pb.UserServiceClient {
 }
 
 func NewProductServiceGrpcClient() pb.ProductServiceClient {
-	cc, err := grpc.Dial(os.Getenv("PRODUCT_GRPC_HOST"), grpc.WithInsecure())
+	cc, err := grpc.Dial(
+		os.Getenv("PRODUCT_GRPC_HOST"),
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(
+			otgrpc.OpenTracingClientInterceptor(tracer),
+		),
+	)
 	if err != nil {
 		log.Fatalf("error while connecting to product grpc service: %v\n", err)
 	}
@@ -135,7 +148,13 @@ func NewProductServiceGrpcClient() pb.ProductServiceClient {
 }
 
 func NewCartServiceGrpcClient() pb.CartServiceClient {
-	cc, err := grpc.Dial(os.Getenv("CART_GRPC_HOST"), grpc.WithInsecure())
+	cc, err := grpc.Dial(
+		os.Getenv("CART_GRPC_HOST"),
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(
+			otgrpc.OpenTracingClientInterceptor(tracer),
+		),
+	)
 	if err != nil {
 		log.Fatalf("error while connecting to cart grpc service: %v\n", err)
 	}
