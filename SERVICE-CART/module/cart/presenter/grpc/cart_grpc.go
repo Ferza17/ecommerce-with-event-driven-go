@@ -20,17 +20,17 @@ func NewCartGRPCPresenter() *cartGRPCPresenter {
 	return &cartGRPCPresenter{}
 }
 
-func (h *cartGRPCPresenter) FindCartById(ctx context.Context, request *pb.FindCartByCartIdRequest) (response *pb.Cart, err error) {
+func (h *cartGRPCPresenter) FindCartByUserId(ctx context.Context, request *pb.FindCartByUserIdRequest) (response *pb.Cart, err error) {
 	var (
 		cartUseCase = cart.GetCartUseCaseFromContext(ctx)
 		tracer      = middleware.GetTracerFromContext(ctx)
-		span        = tracing.StartSpanFromRpc(tracer, "FindCartById")
+		span        = tracing.StartSpanFromRpc(tracer, "FindCartByUserId")
 	)
 	response = &pb.Cart{}
 	opentracing.SetGlobalTracer(tracer)
 	defer span.Finish()
 	ctx = opentracing.ContextWithSpan(ctx, span)
-	if response, err = cartUseCase.FindCartById(ctx, request); err != nil {
+	if response, err = cartUseCase.FindCartByUserId(ctx, request); err != nil {
 		err = errorHandler.RpcErrorHandler(err)
 	}
 	return

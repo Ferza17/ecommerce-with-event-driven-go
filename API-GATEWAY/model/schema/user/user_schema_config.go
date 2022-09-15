@@ -7,3 +7,8 @@ import (
 var UserSchemaConfig = graphql.SchemaConfig{
 	Query: userQueryType,
 }
+
+var AuthSchemaConfig = graphql.SchemaConfig{
+	Query:    authQueryType,
+	Mutation: authMutationType,
+}

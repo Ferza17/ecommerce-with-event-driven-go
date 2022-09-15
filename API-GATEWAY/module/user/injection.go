@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Ferza17/event-driven-api-gateway/middleware"
+	userPub "github.com/Ferza17/event-driven-api-gateway/module/user/publisher"
 	userUseCase "github.com/Ferza17/event-driven-api-gateway/module/user/usecase"
 	"github.com/Ferza17/event-driven-api-gateway/utils"
 )
@@ -11,6 +12,7 @@ import (
 func newUserUseCase(ctx context.Context) userUseCase.UserUseCaseStore {
 	return userUseCase.NewUserUseCase(
 		middleware.GetUserServiceGrpcClientFromContext(ctx),
+		userPub.NewUserPublisher(middleware.GetRabbitMQAmqpFromContext(ctx)),
 	)
 }
 

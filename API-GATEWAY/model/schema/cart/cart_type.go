@@ -1,93 +1,80 @@
-package user
+package cart
 
 import "github.com/graphql-go/graphql"
 
-var userType = graphql.NewObject(
+var cartType = graphql.NewObject(
 	graphql.ObjectConfig{
-		Name: "User",
+		Name: "Cart",
 		Fields: graphql.Fields{
 			"id": &graphql.Field{
 				Type: graphql.String,
 			},
-			"username": &graphql.Field{
-				Type: graphql.String,
-			},
-			"email": &graphql.Field{
-				Type: graphql.String,
-			},
-			"password": &graphql.Field{
-				Type: graphql.String,
-			},
-			"devices": &graphql.Field{
-				Type: graphql.NewList(deviceType),
-			},
-			"createdAt": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"updatedAt": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"discardedAt": &graphql.Field{
-				Type: graphql.Int,
-			},
-		},
-	},
-)
-
-var deviceType = graphql.NewObject(
-	graphql.ObjectConfig{
-		Name: "Device",
-		Fields: graphql.Fields{
-			"id": &graphql.Field{
-				Type: graphql.String,
-			},
-			"deviceId": &graphql.Field{
-				Type: graphql.String,
-			},
-			"accessToken": &graphql.Field{
-				Type: graphql.String,
-			},
-			"createdAt": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"updatedAt": &graphql.Field{
-				Type: graphql.Int,
-			},
-			"discardedAt": &graphql.Field{
-				Type: graphql.Int,
-			},
-		},
-	},
-)
-
-// loginResponseType Section
-var loginResponseType = graphql.NewObject(
-	graphql.ObjectConfig{
-		Name: "LoginResponse",
-		Fields: graphql.Fields{
 			"userId": &graphql.Field{
 				Type: graphql.String,
 			},
-			"token": &graphql.Field{
-				Type: graphql.String,
+			"totalPrice": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"cartItems": &graphql.Field{
+				Type: graphql.NewList(cartItemType),
+			},
+			"createdAt": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"updatedAt": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"discardedAt": &graphql.Field{
+				Type: graphql.Int,
 			},
 		},
 	},
 )
 
-var loginRequestArgsType = graphql.FieldConfigArgument{
-	"email": &graphql.ArgumentConfig{
-		Type: graphql.String,
+var cartItemType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "CartItem",
+		Fields: graphql.Fields{
+			"id": &graphql.Field{
+				Type: graphql.String,
+			},
+			"productId": &graphql.Field{
+				Type: graphql.String,
+			},
+			"quantity": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"price": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"note": &graphql.Field{
+				Type: graphql.String,
+			},
+			"createdAt": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"updatedAt": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"discardedAt": &graphql.Field{
+				Type: graphql.Int,
+			},
+		},
 	},
-	"password": &graphql.ArgumentConfig{
-		Type: graphql.String,
-	},
-}
+)
 
-var registerRequestType = graphql.FieldConfigArgument{
-	"username": &graphql.ArgumentConfig{
-		Type: graphql.String,
+var findCartItemsType = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "findCartItemsType",
+		Fields: graphql.Fields{
+			"items": &graphql.Field{
+				Type: graphql.NewList(cartItemType),
+			},
+		},
 	},
+)
+
+var findCartItemsArgsType = graphql.FieldConfigArgument{
 	"email": &graphql.ArgumentConfig{
 		Type: graphql.String,
 	},

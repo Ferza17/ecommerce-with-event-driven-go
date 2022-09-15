@@ -1,7 +1,6 @@
 syntax = "proto3";
 package model;
 option go_package = "/model/pb";
-import "google/protobuf/timestamp.proto";
 
 
 message Cart {
@@ -9,9 +8,9 @@ message Cart {
   string userId = 2;
   double totalPrice = 3;
   repeated CartItem cartItems = 4;
-  google.protobuf.Timestamp createdAt = 5;
-  google.protobuf.Timestamp updatedAt = 6;
-  google.protobuf.Timestamp discardedAt = 7;
+  int64 createdAt = 5;
+  int64 updatedAt = 6;
+  int64 discardedAt = 7;
 
 }
 
@@ -21,9 +20,9 @@ message CartItem {
   int64 quantity = 3;
   double price = 4;
   string note = 5;
-  google.protobuf.Timestamp createdAt = 6;
-  google.protobuf.Timestamp updatedAt = 7;
-  google.protobuf.Timestamp discardedAt = 8;
+  int64 createdAt = 6;
+  int64 updatedAt = 7;
+  int64 discardedAt = 8;
 }
 
 // CreateCart Session
@@ -50,7 +49,7 @@ message CreateCartItemRequest {
 }
 
 //FindCartByCartIdRequest
-message FindCartByCartIdRequest {
+message FindCartByUserIdRequest {
   string id = 1;
 }
 

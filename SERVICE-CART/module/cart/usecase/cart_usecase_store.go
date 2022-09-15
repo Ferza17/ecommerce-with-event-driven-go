@@ -11,7 +11,7 @@ type CartUseCaseCommand interface {
 }
 
 type CartUseCaseQuery interface {
-	FindCartById(ctx context.Context, request *pb.FindCartByCartIdRequest) (response *pb.Cart, err error)
+	FindCartByUserId(ctx context.Context, request *pb.FindCartByUserIdRequest) (response *pb.Cart, err error)
 	FindCartItems(ctx context.Context, request *pb.FindCartItemsRequest) (response *pb.FindCartItemsResponse, err error)
 }
 

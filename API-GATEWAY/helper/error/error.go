@@ -3,6 +3,7 @@ package error
 import (
 	"net/http"
 
+	"github.com/RoseRocket/xerrs"
 	"github.com/graphql-go/graphql/gqlerrors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -10,35 +11,58 @@ import (
 	"github.com/Ferza17/event-driven-api-gateway/utils"
 )
 
-type ErrorRest struct {
-	Code int
-	Err  error
+type Error struct {
+	StatusCode int
+	Error      error
 }
 
-func HandlerGraphQLErrorFromGRPC(errors []gqlerrors.FormattedError) (errRest ErrorRest) {
+func HandlerGrpcError(rawError error) error {
 	var (
-		mapError = map[codes.Code]ErrorRest{
-			codes.Internal: {
-				Code: http.StatusInternalServerError,
-				Err:  utils.ErrInternalServerError,
-			},
-			codes.NotFound: {
-				Code: http.StatusNotFound,
-				Err:  utils.ErrNotFound,
-			},
+		mapError = map[codes.Code]error{
+			// Internal section
+			codes.Unknown:  xerrs.Mask(rawError, utils.ErrInternalServerError),
+			codes.Internal: xerrs.Mask(rawError, utils.ErrInternalServerError),
+			// not found section
+			codes.NotFound: xerrs.Mask(rawError, utils.ErrNotFound),
+			// bad request section
+			codes.InvalidArgument: xerrs.Mask(rawError, utils.ErrBadRequest),
 		}
-		ok bool
 	)
-
-	for _, formattedError := range errors {
-		grpcStatusError, _ := status.FromError(formattedError)
-		if errRest, ok = mapError[grpcStatusError.Code()]; !ok {
-			errRest = ErrorRest{
-				Code: http.StatusInternalServerError,
-				Err:  formattedError.OriginalError(),
-			}
-		}
-		break
+	grpcStatusError, _ := status.FromError(rawError)
+	err, ok := mapError[grpcStatusError.Code()]
+	if !ok {
+		err = xerrs.Mask(err, utils.ErrInternalServerError)
 	}
-	return
+	return err
+}
+
+func HandleGraphQLError(graphQLError []gqlerrors.FormattedError) Error {
+	var (
+		mapError = map[string]Error{
+			// Internal section
+			utils.ErrInternalServerError.Error(): {
+				StatusCode: http.StatusInternalServerError,
+				Error:      utils.ErrInternalServerError,
+			},
+			// not found section
+			utils.ErrNotFound.Error(): {
+				StatusCode: http.StatusNotFound,
+				Error:      utils.ErrNotFound,
+			},
+			// bad request section
+			utils.ErrBadRequest.Error(): {
+				StatusCode: http.StatusBadRequest,
+				Error:      utils.ErrBadRequest,
+			},
+		}
+		err Error
+		ok  bool
+	)
+	for _, formattedError := range graphQLError {
+		err, ok = mapError[formattedError.Message]
+		if !ok {
+		}
+		return err
+	}
+	return err
 }

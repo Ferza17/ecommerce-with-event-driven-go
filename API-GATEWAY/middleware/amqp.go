@@ -14,7 +14,7 @@ func RegisterRabbitMQAmqpHTTPContext(conn *amqp.Connection) func(next http.Handl
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			var ctx = r.Context()
 			if conn != nil {
-				ctx = context.WithValue(ctx, string(utils.RabbitmqAmqpContextKey), conn)
+				ctx = context.WithValue(ctx, utils.RabbitmqAmqpContextKey, conn)
 			}
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}

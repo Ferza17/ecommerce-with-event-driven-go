@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/Ferza17/event-driven-account-service/helper/tracing"
 	userSchema "github.com/Ferza17/event-driven-account-service/model/bson"
@@ -37,17 +36,17 @@ func (q *userMongoDBRepository) FindUserByEmail(ctx context.Context, email strin
 	response.Username = rawUser.Username
 	response.Email = rawUser.Email
 	response.Password = rawUser.Password
-	response.CreatedAt = timestamppb.New(time.Unix(int64(rawUser.CreatedAt.T), 0))
-	response.UpdatedAt = timestamppb.New(time.Unix(int64(rawUser.UpdatedAt.T), 0))
-	response.DiscardedAt = timestamppb.New(time.Unix(int64(rawUser.DiscardedAt.T), 0))
+	response.CreatedAt = time.Unix(int64(rawUser.CreatedAt.T), 0).Unix()
+	response.UpdatedAt = time.Unix(int64(rawUser.UpdatedAt.T), 0).Unix()
+	response.DiscardedAt = time.Unix(int64(rawUser.DiscardedAt.T), 0).Unix()
 	for _, device := range rawUser.Devices {
 		response.Devices = append(response.Devices, &pb.Device{
 			Id:          device.Id.Hex(),
 			DeviceId:    device.DeviceID,
 			AccessToken: device.AccessToken,
-			CreatedAt:   timestamppb.New(time.Unix(int64(device.CreatedAt.T), 0)),
-			UpdatedAt:   timestamppb.New(time.Unix(int64(device.UpdatedAt.T), 0)),
-			DiscardedAt: timestamppb.New(time.Unix(int64(device.DiscardedAt.T), 0)),
+			CreatedAt:   time.Unix(int64(device.CreatedAt.T), 0).Unix(),
+			UpdatedAt:   time.Unix(int64(device.UpdatedAt.T), 0).Unix(),
+			DiscardedAt: time.Unix(int64(device.DiscardedAt.T), 0).Unix(),
 		})
 	}
 	return
@@ -75,17 +74,17 @@ func (q *userMongoDBRepository) FindUserById(ctx context.Context, id string) (re
 	response.Username = rawUser.Username
 	response.Email = rawUser.Email
 	response.Password = rawUser.Password
-	response.CreatedAt = timestamppb.New(time.Unix(int64(rawUser.CreatedAt.T), 0))
-	response.UpdatedAt = timestamppb.New(time.Unix(int64(rawUser.UpdatedAt.T), 0))
-	response.DiscardedAt = timestamppb.New(time.Unix(int64(rawUser.DiscardedAt.T), 0))
+	response.CreatedAt = time.Unix(int64(rawUser.CreatedAt.T), 0).Unix()
+	response.UpdatedAt = time.Unix(int64(rawUser.UpdatedAt.T), 0).Unix()
+	response.DiscardedAt = time.Unix(int64(rawUser.DiscardedAt.T), 0).Unix()
 	for _, device := range rawUser.Devices {
 		response.Devices = append(response.Devices, &pb.Device{
 			Id:          device.Id.Hex(),
 			DeviceId:    device.DeviceID,
 			AccessToken: device.AccessToken,
-			CreatedAt:   timestamppb.New(time.Unix(int64(device.CreatedAt.T), 0)),
-			UpdatedAt:   timestamppb.New(time.Unix(int64(device.UpdatedAt.T), 0)),
-			DiscardedAt: timestamppb.New(time.Unix(int64(device.DiscardedAt.T), 0)),
+			CreatedAt:   time.Unix(int64(device.CreatedAt.T), 0).Unix(),
+			UpdatedAt:   time.Unix(int64(device.UpdatedAt.T), 0).Unix(),
+			DiscardedAt: time.Unix(int64(device.DiscardedAt.T), 0).Unix(),
 		})
 	}
 	return

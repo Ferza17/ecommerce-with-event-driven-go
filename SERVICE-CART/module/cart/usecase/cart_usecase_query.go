@@ -7,10 +7,10 @@ import (
 	"github.com/Ferza17/event-driven-cart-service/model/pb"
 )
 
-func (u *cartUseCase) FindCartById(ctx context.Context, request *pb.FindCartByCartIdRequest) (response *pb.Cart, err error) {
-	span, ctx := tracing.StartSpanFromContext(ctx, "CartUseCase-FindCartById")
+func (u *cartUseCase) FindCartByUserId(ctx context.Context, request *pb.FindCartByUserIdRequest) (response *pb.Cart, err error) {
+	span, ctx := tracing.StartSpanFromContext(ctx, "CartUseCase-FindCartByUserId")
 	defer span.Finish()
-	response, err = u.cartMongoDBRepository.FindCartById(ctx, request.GetId())
+	response, err = u.cartMongoDBRepository.FindCartByUserId(ctx, request.GetId())
 	return
 }
 

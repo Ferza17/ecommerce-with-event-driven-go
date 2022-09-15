@@ -18,6 +18,9 @@ import (
 
 	"github.com/Ferza17/event-driven-api-gateway/middleware"
 	"github.com/Ferza17/event-driven-api-gateway/model/pb"
+	"github.com/Ferza17/event-driven-api-gateway/model/schema/cart"
+	"github.com/Ferza17/event-driven-api-gateway/model/schema/user"
+	"github.com/Ferza17/event-driven-api-gateway/utils"
 )
 
 type (
@@ -94,6 +97,9 @@ func (srv *Server) routes() *chi.Mux {
 		middleware.RegisterUserServiceGrpcClientHttpContext(srv.userServiceGrpcClient),
 		middleware.RegisterProductServiceGrpcClientHttpContext(srv.productServiceGrpcClient),
 		middleware.RegisterCartServiceGrpcClientHttpContext(srv.cartServiceGrpcClient),
+		middleware.RegisterSchemaConfigHTTPContext(user.UserSchemaConfig, utils.UserSchemaConfigContextKey),
+		middleware.RegisterSchemaConfigHTTPContext(user.AuthSchemaConfig, utils.AuthSchemaConfigContextKey),
+		middleware.RegisterSchemaConfigHTTPContext(cart.CartSchemaConfig, utils.CartSchemaConfigContextKey),
 		chim.Heartbeat("/ping"),
 	)
 	// GraphQL
