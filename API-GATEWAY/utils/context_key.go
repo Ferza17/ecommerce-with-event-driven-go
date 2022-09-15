@@ -15,9 +15,10 @@ const (
 	CartServiceGrpcClientContextKey    ContextKey = "cart_service_grpc_client_context_key"
 	ProductServiceGrpcClientContextKey ContextKey = "product_service_grpc_client_context_key"
 
-	UserSchemaConfigContextKey ContextKey = "user_schema_config_context_key"
-	AuthSchemaConfigContextKey ContextKey = "auth_schema_config_context_key"
-	CartSchemaConfigContextKey ContextKey = "cart_schema_config_context_key"
+	UserSchemaConfigContextKey    ContextKey = "user_schema_config_context_key"
+	AuthSchemaConfigContextKey    ContextKey = "auth_schema_config_context_key"
+	CartSchemaConfigContextKey    ContextKey = "cart_schema_config_context_key"
+	ProductSchemaConfigContextKey ContextKey = "product_schema_config_context_key"
 
 	UserUseCaseContextKey    ContextKey = "user_use_case_context_key"
 	CartUseCaseContextKey    ContextKey = "cart_use_case_context_key"

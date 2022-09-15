@@ -6,28 +6,28 @@ var userType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "User",
 		Fields: graphql.Fields{
-			"id": &graphql.Field{
+			"id": {
 				Type: graphql.String,
 			},
-			"username": &graphql.Field{
+			"username": {
 				Type: graphql.String,
 			},
-			"email": &graphql.Field{
+			"email": {
 				Type: graphql.String,
 			},
-			"password": &graphql.Field{
+			"password": {
 				Type: graphql.String,
 			},
-			"devices": &graphql.Field{
+			"devices": {
 				Type: graphql.NewList(deviceType),
 			},
-			"createdAt": &graphql.Field{
+			"createdAt": {
 				Type: graphql.Int,
 			},
-			"updatedAt": &graphql.Field{
+			"updatedAt": {
 				Type: graphql.Int,
 			},
-			"discardedAt": &graphql.Field{
+			"discardedAt": {
 				Type: graphql.Int,
 			},
 		},
@@ -38,22 +38,22 @@ var deviceType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Device",
 		Fields: graphql.Fields{
-			"id": &graphql.Field{
+			"id": {
 				Type: graphql.String,
 			},
-			"deviceId": &graphql.Field{
+			"deviceId": {
 				Type: graphql.String,
 			},
-			"accessToken": &graphql.Field{
+			"accessToken": {
 				Type: graphql.String,
 			},
-			"createdAt": &graphql.Field{
+			"createdAt": {
 				Type: graphql.Int,
 			},
-			"updatedAt": &graphql.Field{
+			"updatedAt": {
 				Type: graphql.Int,
 			},
-			"discardedAt": &graphql.Field{
+			"discardedAt": {
 				Type: graphql.Int,
 			},
 		},
@@ -65,10 +65,10 @@ var loginResponseType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "LoginResponse",
 		Fields: graphql.Fields{
-			"userId": &graphql.Field{
+			"userId": {
 				Type: graphql.String,
 			},
-			"token": &graphql.Field{
+			"token": {
 				Type: graphql.String,
 			},
 		},
@@ -76,22 +76,22 @@ var loginResponseType = graphql.NewObject(
 )
 
 var loginRequestArgsType = graphql.FieldConfigArgument{
-	"email": &graphql.ArgumentConfig{
+	"email": {
 		Type: graphql.String,
 	},
-	"password": &graphql.ArgumentConfig{
+	"password": {
 		Type: graphql.String,
 	},
 }
 
 var registerRequestType = graphql.FieldConfigArgument{
-	"username": &graphql.ArgumentConfig{
+	"username": {
 		Type: graphql.String,
 	},
-	"email": &graphql.ArgumentConfig{
+	"email": {
 		Type: graphql.String,
 	},
-	"password": &graphql.ArgumentConfig{
+	"password": {
 		Type: graphql.String,
 	},
 }

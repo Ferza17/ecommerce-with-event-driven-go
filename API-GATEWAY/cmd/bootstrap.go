@@ -78,7 +78,7 @@ func NewTracer() opentracing.Tracer {
 
 func NewConsulClient() *api.Client {
 	port, _ := strconv.Atoi(os.Getenv("HTTP_PORT"))
-	address := fmt.Sprintf("http://%s:%s/check", os.Getenv("HTTP_HOST"), os.Getenv("HTTP_PORT"))
+	address := fmt.Sprintf("http://%s:%s/ping", os.Getenv("HTTP_HOST"), os.Getenv("HTTP_PORT"))
 	defaultConfig := api.DefaultConfig()
 	client, err := api.NewClient(defaultConfig)
 	if err != nil {

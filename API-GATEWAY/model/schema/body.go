@@ -25,7 +25,7 @@ var CommandType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "commandType",
 		Fields: graphql.Fields{
-			"message": &graphql.Field{
+			"message": {
 				Type: graphql.String,
 			},
 		},

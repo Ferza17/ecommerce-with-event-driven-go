@@ -27,7 +27,6 @@ func (u *cartUseCase) FindCartByUserId(ctx context.Context, request *pb.FindCart
 	response, err = u.cartService.FindCartByUserId(ctx, request)
 	if err != nil {
 		err = errorHandler.HandlerGrpcError(err)
-		return
 	}
 	return
 }

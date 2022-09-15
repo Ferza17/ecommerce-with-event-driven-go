@@ -11,7 +11,7 @@ var authMutationType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "AuthMutation",
 		Fields: graphql.Fields{
-			"Register": &graphql.Field{
+			"Register": {
 				Type: schema.CommandType,
 				Args: registerRequestType,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {

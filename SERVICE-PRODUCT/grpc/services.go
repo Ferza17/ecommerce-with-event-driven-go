@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"github.com/Ferza17/event-driven-product-service/model/pb"
-	productModule "github.com/Ferza17/event-driven-product-service/services/product/presenter/grpc"
+	productModule "github.com/Ferza17/event-driven-product-service/module/product/presenter/grpc"
 )
 
 func (srv *Server) RegisterService() {

@@ -21,8 +21,8 @@ func (p *userGRPCPresenter) Login(ctx context.Context, request *pb.LoginRequest)
 	var (
 		userUseCase = user.GetUserUseCaseFromContext(ctx)
 	)
-	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-Login")
 	response = &pb.LoginResponse{}
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-Login")
 	defer span.Finish()
 	if response, err = userUseCase.FindUserByEmailAndPassword(ctx, request); err != nil {
 		err = errorHandler.RpcErrorHandler(err)

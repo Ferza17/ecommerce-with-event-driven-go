@@ -10,13 +10,13 @@ var cartQueryType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "CartQuery",
 		Fields: graphql.Fields{
-			"FindCartByUserId": &graphql.Field{
+			"FindCartByUserId": {
 				Type: cartType,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return cartPresenter.HandleFindCartByUserId(p)
 				},
 			},
-			"FindCartItems": &graphql.Field{
+			"FindCartItems": {
 				Type: findCartItemsType,
 				Args: findCartItemsArgsType,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {

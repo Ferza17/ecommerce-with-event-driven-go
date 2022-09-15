@@ -1,11 +1,11 @@
 package usecase
 
 import (
+	"github.com/Ferza17/event-driven-product-service/module/product/repository/cassandradb"
+	"github.com/Ferza17/event-driven-product-service/module/product/repository/elasticsearch"
+	"github.com/Ferza17/event-driven-product-service/module/product/repository/postgres"
+	"github.com/Ferza17/event-driven-product-service/module/product/repository/redis"
 	"github.com/Ferza17/event-driven-product-service/saga"
-	"github.com/Ferza17/event-driven-product-service/services/product/repository/cassandradb"
-	"github.com/Ferza17/event-driven-product-service/services/product/repository/elasticsearch"
-	"github.com/Ferza17/event-driven-product-service/services/product/repository/postgres"
-	"github.com/Ferza17/event-driven-product-service/services/product/repository/redis"
 )
 
 type productUseCase struct {

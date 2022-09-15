@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/graphql-go/graphql"
 
 	errorHandler "github.com/Ferza17/event-driven-api-gateway/helper/error"
@@ -13,6 +14,22 @@ import (
 	"github.com/Ferza17/event-driven-api-gateway/module/user"
 	"github.com/Ferza17/event-driven-api-gateway/utils"
 )
+
+func Routes() *chi.Mux {
+	r := chi.NewRouter()
+	r.Group(func(r chi.Router) {
+		r.Use(middleware.JwtRequired)
+		r.Route("/", func(r chi.Router) {
+			r.Post("/", userGraphqlEntrypoint)
+		})
+	})
+	r.Group(func(r chi.Router) {
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/", authGraphqlEntrypoint)
+		})
+	})
+	return r
+}
 
 func userGraphqlEntrypoint(w http.ResponseWriter, r *http.Request) {
 	var (

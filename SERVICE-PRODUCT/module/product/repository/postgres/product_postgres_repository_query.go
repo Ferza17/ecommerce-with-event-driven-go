@@ -4,10 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
 	"github.com/RoseRocket/xerrs"
-	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/Ferza17/event-driven-product-service/helper/tracing"
 	"github.com/Ferza17/event-driven-product-service/model/pb"
@@ -15,7 +13,7 @@ import (
 )
 
 func (q *productPostgresRepository) FindProducts(ctx context.Context, request *pb.FindProductsRequest) (response *pb.FindProductsResponse, err error) {
-	span, ctx := tracing.StartSpanFromContext(ctx, "ProductSqlRepository-FindProductByID")
+	span, ctx := tracing.StartSpanFromContext(ctx, "ProductSqlRepository-FindProducts")
 	defer span.Finish()
 	return
 }
@@ -36,12 +34,10 @@ func (q *productPostgresRepository) FindProductById(ctx context.Context, id stri
 				, COALESCE(discarded_at, 0)	
     		FROM %s
 			WHERE id = $1`, tableProduct)
-
-		createdAt   int64
-		updatedAt   int64
-		discardedAt int64
 	)
 	response = &pb.Product{}
+	span, ctx := tracing.StartSpanFromContext(ctx, "ProductSqlRepository-FindProductById")
+	defer span.Finish()
 	if err = q.dbRead.QueryRowxContext(ctx, query, id).Scan(
 		&response.Id,
 		&response.Name,
@@ -50,9 +46,9 @@ func (q *productPostgresRepository) FindProductById(ctx context.Context, id stri
 		&response.Stock,
 		&response.Price,
 		&response.Uom,
-		&createdAt,
-		&updatedAt,
-		&discardedAt,
+		&response.CreatedAt,
+		&response.UpdatedAt,
+		&response.DiscardedAt,
 	); err != nil {
 		if err == sql.ErrNoRows {
 			err = xerrs.Mask(err, utils.ErrNotFound)
@@ -60,8 +56,5 @@ func (q *productPostgresRepository) FindProductById(ctx context.Context, id stri
 		}
 		err = xerrs.Mask(err, utils.ErrQueryRead)
 	}
-	response.CreatedAt = timestamppb.New(time.Unix(createdAt, 0))
-	response.UpdatedAt = timestamppb.New(time.Unix(updatedAt, 0))
-	response.DiscardedAt = timestamppb.New(time.Unix(discardedAt, 0))
 	return
 }

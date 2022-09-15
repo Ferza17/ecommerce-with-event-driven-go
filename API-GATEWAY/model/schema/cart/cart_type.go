@@ -6,25 +6,25 @@ var cartType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Cart",
 		Fields: graphql.Fields{
-			"id": &graphql.Field{
+			"id": {
 				Type: graphql.String,
 			},
-			"userId": &graphql.Field{
+			"userId": {
 				Type: graphql.String,
 			},
-			"totalPrice": &graphql.Field{
+			"totalPrice": {
 				Type: graphql.Int,
 			},
-			"cartItems": &graphql.Field{
+			"cartItems": {
 				Type: graphql.NewList(cartItemType),
 			},
-			"createdAt": &graphql.Field{
+			"createdAt": {
 				Type: graphql.Int,
 			},
-			"updatedAt": &graphql.Field{
+			"updatedAt": {
 				Type: graphql.Int,
 			},
-			"discardedAt": &graphql.Field{
+			"discardedAt": {
 				Type: graphql.Int,
 			},
 		},
@@ -35,28 +35,28 @@ var cartItemType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "CartItem",
 		Fields: graphql.Fields{
-			"id": &graphql.Field{
+			"id": {
 				Type: graphql.String,
 			},
-			"productId": &graphql.Field{
+			"productId": {
 				Type: graphql.String,
 			},
-			"quantity": &graphql.Field{
+			"quantity": {
 				Type: graphql.Int,
 			},
-			"price": &graphql.Field{
+			"price": {
 				Type: graphql.Int,
 			},
-			"note": &graphql.Field{
+			"note": {
 				Type: graphql.String,
 			},
-			"createdAt": &graphql.Field{
+			"createdAt": {
 				Type: graphql.Int,
 			},
-			"updatedAt": &graphql.Field{
+			"updatedAt": {
 				Type: graphql.Int,
 			},
-			"discardedAt": &graphql.Field{
+			"discardedAt": {
 				Type: graphql.Int,
 			},
 		},
@@ -67,7 +67,7 @@ var findCartItemsType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "findCartItemsType",
 		Fields: graphql.Fields{
-			"items": &graphql.Field{
+			"items": {
 				Type: graphql.NewList(cartItemType),
 			},
 		},
@@ -75,10 +75,10 @@ var findCartItemsType = graphql.NewObject(
 )
 
 var findCartItemsArgsType = graphql.FieldConfigArgument{
-	"email": &graphql.ArgumentConfig{
+	"email": {
 		Type: graphql.String,
 	},
-	"password": &graphql.ArgumentConfig{
+	"password": {
 		Type: graphql.String,
 	},
 }

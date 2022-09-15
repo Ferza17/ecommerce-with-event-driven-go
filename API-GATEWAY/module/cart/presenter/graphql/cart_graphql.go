@@ -2,7 +2,6 @@ package graphql
 
 import (
 	"github.com/graphql-go/graphql"
-	"github.com/opentracing/opentracing-go"
 
 	"github.com/Ferza17/event-driven-api-gateway/helper/tracing"
 	"github.com/Ferza17/event-driven-api-gateway/middleware"
@@ -14,13 +13,10 @@ func HandleFindCartByUserId(p graphql.ResolveParams) (response *pb.Cart, err err
 	var (
 		ctx         = p.Context
 		cartUseCase = cart.GetCartUseCaseFromContext(ctx)
-		tracer      = middleware.GetTracerFromContext(ctx)
 		identity    = middleware.GetTokenIdentityFromContext(ctx)
-		span        = tracing.StartSpanFromRpc(tracer, "HandleFindCartByUserId")
 	)
-	opentracing.SetGlobalTracer(tracer)
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-HandleUserLogin")
 	defer span.Finish()
-	ctx = opentracing.ContextWithSpan(ctx, span)
 	response, err = cartUseCase.FindCartByUserId(
 		ctx,
 		&pb.FindCartByUserIdRequest{

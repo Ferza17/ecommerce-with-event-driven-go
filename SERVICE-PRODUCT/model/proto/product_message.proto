@@ -1,7 +1,6 @@
 syntax = "proto3";
 package model;
 option go_package = "/model/pb";
-import "google/protobuf/timestamp.proto";
 
 message Product {
   string id = 1;
@@ -11,9 +10,9 @@ message Product {
   string image = 5;
   double price = 6;
   double stock = 7;
-  google.protobuf.Timestamp createdAt = 8;
-  google.protobuf.Timestamp updatedAt = 9;
-  google.protobuf.Timestamp discardedAt = 10;
+  int64 createdAt = 8;
+  int64 updatedAt = 9;
+  int64 discardedAt = 10;
 }
 
 message FindProductByIdRequest {

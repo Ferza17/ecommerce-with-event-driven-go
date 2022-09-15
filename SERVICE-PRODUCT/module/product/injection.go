@@ -5,12 +5,12 @@ import (
 
 	"google.golang.org/grpc"
 
+	"github.com/Ferza17/event-driven-product-service/module/product/repository/cassandradb"
+	"github.com/Ferza17/event-driven-product-service/module/product/repository/elasticsearch"
+	"github.com/Ferza17/event-driven-product-service/module/product/repository/postgres"
+	"github.com/Ferza17/event-driven-product-service/module/product/repository/redis"
+	productUseCase "github.com/Ferza17/event-driven-product-service/module/product/usecase"
 	"github.com/Ferza17/event-driven-product-service/saga"
-	"github.com/Ferza17/event-driven-product-service/services/product/repository/cassandradb"
-	"github.com/Ferza17/event-driven-product-service/services/product/repository/elasticsearch"
-	"github.com/Ferza17/event-driven-product-service/services/product/repository/postgres"
-	"github.com/Ferza17/event-driven-product-service/services/product/repository/redis"
-	productUseCase "github.com/Ferza17/event-driven-product-service/services/product/usecase"
 
 	"github.com/Ferza17/event-driven-product-service/middleware"
 	"github.com/Ferza17/event-driven-product-service/utils"

@@ -16,6 +16,7 @@ func RegisterTracerHTTPContext(tracer opentracing.Tracer) func(next http.Handler
 			if tracer != nil {
 				ctx = context.WithValue(ctx, utils.TracerContextKey, tracer)
 			}
+			opentracing.SetGlobalTracer(tracer)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 		return http.HandlerFunc(fn)

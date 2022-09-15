@@ -18,7 +18,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/Ferza17/event-driven-product-service/middleware"
-	product "github.com/Ferza17/event-driven-product-service/services/product"
+	"github.com/Ferza17/event-driven-product-service/module/product"
 )
 
 type (

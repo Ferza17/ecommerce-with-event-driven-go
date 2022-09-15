@@ -10,7 +10,7 @@ var userQueryType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "UserQuery",
 		Fields: graphql.Fields{
-			"FindUserById": &graphql.Field{
+			"FindUserById": {
 				Type: userType,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return userPresenter.HandleFindUserById(p)
@@ -24,7 +24,7 @@ var authQueryType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "AuthQuery",
 		Fields: graphql.Fields{
-			"Login": &graphql.Field{
+			"Login": {
 				Type: loginResponseType,
 				Args: loginRequestArgsType,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {

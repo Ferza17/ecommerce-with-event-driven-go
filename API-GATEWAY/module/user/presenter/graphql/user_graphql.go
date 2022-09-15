@@ -3,7 +3,6 @@ package graphql
 import (
 	"github.com/google/uuid"
 	"github.com/graphql-go/graphql"
-	"github.com/opentracing/opentracing-go"
 
 	"github.com/Ferza17/event-driven-api-gateway/helper/tracing"
 	"github.com/Ferza17/event-driven-api-gateway/middleware"
@@ -16,12 +15,9 @@ func HandleUserLogin(p graphql.ResolveParams) (response *pb.LoginResponse, err e
 	var (
 		ctx         = p.Context
 		userUseCase = user.GetUserUseCaseFromContext(ctx)
-		tracer      = middleware.GetTracerFromContext(ctx)
-		span        = tracing.StartSpanFromRpc(tracer, "HandleUserLogin")
 	)
-	opentracing.SetGlobalTracer(tracer)
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-HandleUserLogin")
 	defer span.Finish()
-	ctx = opentracing.ContextWithSpan(ctx, span)
 	response, err = userUseCase.FindUserByEmailAndPassword(
 		ctx,
 		&pb.LoginRequest{
@@ -36,13 +32,10 @@ func HandleFindUserById(p graphql.ResolveParams) (response *pb.User, err error) 
 	var (
 		ctx         = p.Context
 		userUseCase = user.GetUserUseCaseFromContext(ctx)
-		tracer      = middleware.GetTracerFromContext(ctx)
-		span        = tracing.StartSpanFromRpc(tracer, "HandleFindUserById")
 		identity    = middleware.GetTokenIdentityFromContext(ctx)
 	)
-	opentracing.SetGlobalTracer(tracer)
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-HandleFindUserById")
 	defer span.Finish()
-	ctx = opentracing.ContextWithSpan(ctx, span)
 	response, err = userUseCase.FindUserById(
 		ctx,
 		&pb.FindUserByIdRequest{
@@ -56,12 +49,9 @@ func HandleRegister(p graphql.ResolveParams) (response schema.CommandResponse, e
 	var (
 		ctx         = p.Context
 		userUseCase = user.GetUserUseCaseFromContext(ctx)
-		tracer      = middleware.GetTracerFromContext(ctx)
-		span        = tracing.StartSpanFromRpc(tracer, "HandleRegister")
 	)
-	opentracing.SetGlobalTracer(tracer)
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-HandleRegister")
 	defer span.Finish()
-	ctx = opentracing.ContextWithSpan(ctx, span)
 	response, err = userUseCase.CreateUser(
 		ctx,
 		&pb.RegisterRequest{

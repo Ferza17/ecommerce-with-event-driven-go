@@ -11,6 +11,7 @@ import (
 
 func UnaryRegisterTracerContext(tracer opentracing.Tracer) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		opentracing.SetGlobalTracer(tracer)
 		return handler(context.WithValue(ctx, utils.TracerContextKey, tracer), req)
 	}
 }
