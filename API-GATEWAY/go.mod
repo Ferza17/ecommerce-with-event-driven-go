@@ -3,12 +3,12 @@ module github.com/Ferza17/event-driven-api-gateway
 go 1.19
 
 require (
+	github.com/99designs/gqlgen v0.17.19
 	github.com/RoseRocket/xerrs v1.2.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/render v1.0.2
-	github.com/google/uuid v1.3.0
 	github.com/graphql-go/graphql v0.8.0
 	github.com/hashicorp/consul/api v1.14.0
 	github.com/joho/godotenv v1.4.0
@@ -19,6 +19,7 @@ require (
 	github.com/spf13/cobra v1.5.0
 	github.com/treastech/logger v0.0.0-20180705232552-e381e9ecf2e3
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
+	github.com/vektah/gqlparser/v2 v2.5.1
 	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	google.golang.org/grpc v1.37.1
@@ -27,13 +28,14 @@ require (
 
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
+	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-chi/chi v1.5.4 // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
-	github.com/graph-gophers/graphql-transport-ws v0.0.2 // indirect
 	github.com/hashicorp/consul/sdk v0.11.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/hashicorp/go-hclog v0.14.1 // indirect

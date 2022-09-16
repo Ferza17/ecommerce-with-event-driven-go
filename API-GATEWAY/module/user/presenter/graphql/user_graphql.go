@@ -1,63 +1,80 @@
 package graphql
 
 import (
+	"context"
+
 	"github.com/google/uuid"
-	"github.com/graphql-go/graphql"
 
 	"github.com/Ferza17/event-driven-api-gateway/helper/tracing"
 	"github.com/Ferza17/event-driven-api-gateway/middleware"
+	"github.com/Ferza17/event-driven-api-gateway/model/graph/model"
 	"github.com/Ferza17/event-driven-api-gateway/model/pb"
-	"github.com/Ferza17/event-driven-api-gateway/model/schema"
 	"github.com/Ferza17/event-driven-api-gateway/module/user"
 )
 
-func HandleUserLogin(p graphql.ResolveParams) (response *pb.LoginResponse, err error) {
+func HandleUserLogin(ctx context.Context, input *model.LoginRequest) (response *model.LoginResponse, err error) {
 	var (
-		ctx         = p.Context
 		userUseCase = user.GetUserUseCaseFromContext(ctx)
 	)
 	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-HandleUserLogin")
 	defer span.Finish()
-	response, err = userUseCase.FindUserByEmailAndPassword(
+	user, err := userUseCase.FindUserByEmailAndPassword(
 		ctx,
 		&pb.LoginRequest{
-			Email:    p.Args["email"].(string),
-			Password: p.Args["password"].(string),
+			Email:    input.Email,
+			Password: input.Password,
 		},
 	)
+	if err != nil {
+		return
+	}
+	response = &model.LoginResponse{
+		UserID: user.GetUserId(),
+		Token:  user.GetToken(),
+	}
 	return
 }
 
-func HandleFindUserById(p graphql.ResolveParams) (response *pb.User, err error) {
+func HandleFindUserByIdFindUserByID(ctx context.Context) (response *model.User, err error) {
 	var (
-		ctx         = p.Context
 		userUseCase = user.GetUserUseCaseFromContext(ctx)
 		identity    = middleware.GetTokenIdentityFromContext(ctx)
 	)
 	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-HandleFindUserById")
 	defer span.Finish()
-	response, err = userUseCase.FindUserById(
+	user, err := userUseCase.FindUserById(
 		ctx,
 		&pb.FindUserByIdRequest{
 			Id: identity.UserId,
 		},
 	)
+	if err != nil {
+		return
+	}
+	response = &model.User{
+		ID:          user.GetId(),
+		Username:    user.GetUsername(),
+		Email:       user.GetEmail(),
+		Password:    user.GetPassword(),
+		CreatedAt:   int(user.GetCreatedAt()),
+		UpdatedAt:   int(user.GetUpdatedAt()),
+		DiscardedAt: int(user.GetDiscardedAt()),
+	}
 	return
 }
 
-func HandleRegister(p graphql.ResolveParams) (response schema.CommandResponse, err error) {
+func HandleUserRegister(ctx context.Context, input *model.RegisterRequest) (response *model.CommandResponse, err error) {
 	var (
-		ctx         = p.Context
 		userUseCase = user.GetUserUseCaseFromContext(ctx)
 	)
-	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-HandleRegister")
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-HandleUserRegister")
 	defer span.Finish()
 	response, err = userUseCase.CreateUser(
 		ctx,
 		&pb.RegisterRequest{
-			Username:      p.Args["username"].(string),
-			Email:         p.Args["email"].(string),
-			Password:      p.Args["password"].(string),
+			Username:      input.Username,
+			Email:         input.Email,
+			Password:      input.Password,
 			TransactionId: uuid.NewString(),
 		},
 	)

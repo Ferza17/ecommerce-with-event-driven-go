@@ -9,8 +9,8 @@ import (
 	errorHandler "github.com/Ferza17/event-driven-api-gateway/helper/error"
 	"github.com/Ferza17/event-driven-api-gateway/helper/tracing"
 	"github.com/Ferza17/event-driven-api-gateway/middleware"
+	"github.com/Ferza17/event-driven-api-gateway/model/graph/model"
 	"github.com/Ferza17/event-driven-api-gateway/model/pb"
-	"github.com/Ferza17/event-driven-api-gateway/model/schema"
 	userPub "github.com/Ferza17/event-driven-api-gateway/module/user/publisher"
 	"github.com/Ferza17/event-driven-api-gateway/utils"
 )
@@ -58,9 +58,10 @@ func (u *userUseCase) FindUserById(ctx context.Context, request *pb.FindUserById
 	return
 }
 
-func (u *userUseCase) CreateUser(ctx context.Context, request *pb.RegisterRequest) (response schema.CommandResponse, err error) {
+func (u *userUseCase) CreateUser(ctx context.Context, request *pb.RegisterRequest) (response *model.CommandResponse, err error) {
 	span, ctx := tracing.StartSpanFromContext(ctx, "UserUseCase-CreateUser")
 	defer span.Finish()
+	response = &model.CommandResponse{}
 	payload, err := json.Marshal(request)
 	if err != nil {
 		err = xerrs.Mask(err, utils.ErrBadRequest)
@@ -81,6 +82,6 @@ func (u *userUseCase) CreateUser(ctx context.Context, request *pb.RegisterReques
 		err = xerrs.Mask(utils.ErrInternalServerError, utils.ErrInternalServerError)
 		return
 	}
-	response.Message = schema.CommandSuccess
+	response.Message = model.CommandResponseMessageSuccess
 	return
 }

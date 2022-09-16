@@ -1,0 +1,48 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type User {
+    id: String!
+    username: String!
+    email: String!
+    password: String!
+    devices: [Device]
+    createdAt: Int!
+    updatedAt: Int!
+    discardedAt: Int!
+}
+
+type Device {
+    id: String!
+    deviceId: String!
+    accessToken: String!
+    createdAt: Int!
+    updatedAt: Int!
+    discardedAt: Int!
+}
+
+type loginResponse{
+    userId: String!
+    token: String!
+}
+
+enum commandResponseMessage {
+    SUCCESS
+    FAILED
+}
+
+type commandResponse {
+    message: commandResponseMessage!
+}
+
+input loginRequest{
+    email: String!
+    password: String!
+}
+
+input registerRequest{
+    username: String!
+    email: String!
+    password: String!
+}

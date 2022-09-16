@@ -1,0 +1,8 @@
+type Query {
+    # USER
+    findUserById:User! @goField(forceResolver: true) @jwt
+    login(input: loginRequest):loginResponse! @goField(forceResolver: true)
+    # CART
+    findCartByUserId:Cart! @goField(forceResolver: true) @jwt
+    findCartItemsArgsType(input: findCartItems): [CartItem] @goField(forceResolver: true) @jwt
+}

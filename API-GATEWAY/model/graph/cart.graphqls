@@ -1,0 +1,33 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Cart {
+    id: String!
+    userId: String!
+    totalPrice: Int!
+    cartItems: [CartItem]
+    createdAt: Int!
+    updatedAt: Int!
+    discardedAt: Int!
+}
+
+type CartItem {
+    id: String!
+    productId: String!
+    quantity: Int!
+    price: Int!
+    note: String!
+    createdAt: Int!
+    updatedAt: Int!
+    discardedAt: Int!
+}
+
+input findCartItems{
+    id: String!
+    productId: String!
+    limit: Int!
+    page: Int!
+}
+
+

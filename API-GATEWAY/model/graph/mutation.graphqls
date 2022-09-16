@@ -1,0 +1,4 @@
+type Mutation {
+    # USER
+    register(input: registerRequest):commandResponse! @goField(forceResolver: true)
+}

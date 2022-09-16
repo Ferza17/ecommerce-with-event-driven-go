@@ -18,10 +18,8 @@ import (
 
 	"github.com/Ferza17/event-driven-api-gateway/middleware"
 	"github.com/Ferza17/event-driven-api-gateway/model/pb"
-	"github.com/Ferza17/event-driven-api-gateway/model/schema/cart"
-	"github.com/Ferza17/event-driven-api-gateway/model/schema/product"
-	"github.com/Ferza17/event-driven-api-gateway/model/schema/user"
-	"github.com/Ferza17/event-driven-api-gateway/utils"
+	"github.com/Ferza17/event-driven-api-gateway/module/cart"
+	"github.com/Ferza17/event-driven-api-gateway/module/user"
 )
 
 type (
@@ -79,7 +77,7 @@ func (srv *Server) routes() *chi.Mux {
 	r.Use(
 		cors.Handler(cors.Options{
 			AllowedOrigins:   []string{"https://*", "http://*"},
-			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "CONNECT", "TRACE", "HEAD", "PATCH"},
 			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 			ExposedHeaders:   []string{"Link"},
 			AllowCredentials: false,
@@ -98,10 +96,8 @@ func (srv *Server) routes() *chi.Mux {
 		middleware.RegisterUserServiceGrpcClientHttpContext(srv.userServiceGrpcClient),
 		middleware.RegisterProductServiceGrpcClientHttpContext(srv.productServiceGrpcClient),
 		middleware.RegisterCartServiceGrpcClientHttpContext(srv.cartServiceGrpcClient),
-		middleware.RegisterSchemaConfigHTTPContext(user.UserSchemaConfig, utils.UserSchemaConfigContextKey),
-		middleware.RegisterSchemaConfigHTTPContext(user.AuthSchemaConfig, utils.AuthSchemaConfigContextKey),
-		middleware.RegisterSchemaConfigHTTPContext(cart.CartSchemaConfig, utils.CartSchemaConfigContextKey),
-		middleware.RegisterSchemaConfigHTTPContext(product.ProductSchemaConfig, utils.ProductSchemaConfigContextKey),
+		user.RegisterUserUseCaseHTTPContext(),
+		cart.RegisterCartUseCaseHTTPContext(),
 		chim.Heartbeat("/ping"),
 	)
 	// GraphQL

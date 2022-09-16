@@ -6,10 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/RoseRocket/xerrs"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 
-	"github.com/Ferza17/event-driven-api-gateway/helper/response"
 	"github.com/Ferza17/event-driven-api-gateway/utils"
 )
 
@@ -41,37 +42,51 @@ func CreateToken(userId string) (string, error) {
 	return resultToken, nil
 }
 
-func JwtRequired(next http.Handler) http.Handler {
+func RegisterTokenHTTPContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tokenString := r.Header.Get("Authorization")
 		tokenString = strings.ReplaceAll(tokenString, "Bearer ", "")
-
-		if tokenString == "" {
-			response.Nay(w, r, http.StatusUnauthorized, utils.ErrJwtRequired)
-			return
-		}
-
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, utils.ErrInvalidToken
-			}
-			return []byte(secret), nil
-		})
-		if err != nil {
-			response.Nay(w, r, http.StatusUnauthorized, err)
-			return
-		}
-
-		// Check Validation Token
-		if err != nil {
-			err = utils.ErrTokenInvalid
-			response.Nay(w, r, http.StatusUnauthorized, err)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), utils.TokenIdentityContextKey, SetTokenIdentity(token))
-		next.ServeHTTP(w, r.WithContext(ctx))
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), utils.TokenContextKey, tokenString)))
 	})
+}
+
+func DirectiveJwtRequired(ctx context.Context, obj interface{}, next graphql.Resolver) (interface{}, error) {
+	token := GetTokenFromContext(ctx)
+	if token == "" {
+		return nil, &gqlerror.Error{
+			Message: utils.ErrInvalidToken.Error(),
+		}
+	}
+	rawToken, err := validateToken(token)
+	if err != nil {
+		return nil, &gqlerror.Error{
+			Message: err.Error(),
+		}
+	}
+	ctx = context.WithValue(ctx, utils.TokenIdentityContextKey, SetTokenIdentity(rawToken))
+	return next(ctx)
+}
+
+func validateToken(token string) (identity *jwt.Token, err error) {
+	if token == "" {
+		err = xerrs.Mask(err, utils.ErrJwtRequired)
+		return
+	}
+	identity, err = jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, utils.ErrInvalidToken
+		}
+		return []byte(secret), nil
+	})
+	if err != nil {
+		err = xerrs.Mask(err, utils.ErrForbidden)
+		return
+	}
+	return
+}
+
+func GetTokenFromContext(ctx context.Context) string {
+	return ctx.Value(utils.TokenContextKey).(string)
 }
 
 func SetTokenIdentity(token *jwt.Token) TokenIdentity {
