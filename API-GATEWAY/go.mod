@@ -32,6 +32,8 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-chi/chi v1.5.4 // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
+	github.com/graph-gophers/graphql-transport-ws v0.0.2 // indirect
 	github.com/hashicorp/consul/sdk v0.11.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/hashicorp/go-hclog v0.14.1 // indirect

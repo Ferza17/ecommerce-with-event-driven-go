@@ -126,7 +126,7 @@ func (c *userSubscriberPresenter) subscribeCreateCartEventSaga(ctx context.Conte
 			ctx = opentracing.ContextWithSpan(ctx, span)
 			err = json.Unmarshal(d.Body, &request)
 			if request.Status == utils.SagaStatusFailed {
-				_ = userUseCase.RollbackNewUserSAGA(ctx, request.TransactionId)
+				_ = userUseCase.RollbackUserCrateNewUserSAGA(ctx, request.TransactionId)
 			}
 			d.Ack(false)
 			span.Finish()

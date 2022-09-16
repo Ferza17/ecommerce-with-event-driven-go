@@ -6,8 +6,8 @@ import (
 	"github.com/Ferza17/event-driven-account-service/helper/tracing"
 )
 
-func (u *userUseCase) RollbackNewUserSAGA(ctx context.Context, transactionId string) (err error) {
-	span, ctx := tracing.StartSpanFromContext(ctx, "UserUseCase-RollbackNewUserSAGA")
+func (u *userUseCase) RollbackUserCrateNewUserSAGA(ctx context.Context, transactionId string) (err error) {
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserUseCase-RollbackUserCrateNewUserSAGA")
 	defer span.Finish()
 	session, err := u.userMongoDBRepository.CreateNoSQLSession(ctx)
 	if err != nil {

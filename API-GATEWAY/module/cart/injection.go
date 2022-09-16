@@ -11,6 +11,7 @@ import (
 func newCartUseCase(ctx context.Context) cartUseCase.CartUseCaseStore {
 	return cartUseCase.NewCartUseCase(
 		middleware.GetCartServiceGrpcClientFromContext(ctx),
+		middleware.GetProductServiceGrpcClientFromContext(ctx),
 	)
 }
 

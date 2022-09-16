@@ -42,3 +42,16 @@ func (p *userGRPCPresenter) FindUserById(ctx context.Context, request *pb.FindUs
 	}
 	return
 }
+
+func (p *userGRPCPresenter) FindUserByEmail(ctx context.Context, request *pb.FindUserByEmailRequest) (response *pb.User, err error) {
+	var (
+		userUseCase = user.GetUserUseCaseFromContext(ctx)
+	)
+	response = &pb.User{}
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserGRPCPresenter-FindUserByEmail")
+	defer span.Finish()
+	if response, err = userUseCase.FindUserByEmail(ctx, request); err != nil {
+		err = errorHandler.RpcErrorHandler(err)
+	}
+	return
+}

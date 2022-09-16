@@ -54,6 +54,14 @@ func HandleGraphQLError(graphQLError []gqlerrors.FormattedError) Error {
 				StatusCode: http.StatusBadRequest,
 				Error:      utils.ErrBadRequest,
 			},
+			utils.ErrItemOutOfStock.Error(): {
+				StatusCode: http.StatusBadRequest,
+				Error:      utils.ErrItemOutOfStock,
+			},
+			utils.ErrItemAlreadyExist.Error(): {
+				StatusCode: http.StatusBadRequest,
+				Error:      utils.ErrItemAlreadyExist,
+			},
 		}
 		err Error
 		ok  bool

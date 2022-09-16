@@ -26,7 +26,7 @@ func (q *userMongoDBRepository) FindUserByEmail(ctx context.Context, email strin
 	result := userCollection.FindOne(ctx, bson.M{"email": email})
 	if err = result.Decode(&rawUser); err != nil {
 		if err == mongo.ErrNoDocuments {
-			err = xerrs.Mask(err, utils.ErrNotFound)
+			err = nil
 			return
 		}
 		err = xerrs.Mask(err, utils.ErrInternalServerError)

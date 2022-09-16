@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CartServiceClient interface {
 	FindCartByUserId(ctx context.Context, in *FindCartByUserIdRequest, opts ...grpc.CallOption) (*Cart, error)
+	FindCartById(ctx context.Context, in *FindCartByIdRequest, opts ...grpc.CallOption) (*Cart, error)
 	FindCartItems(ctx context.Context, in *FindCartItemsRequest, opts ...grpc.CallOption) (*FindCartItemsResponse, error)
 }
 
@@ -43,6 +44,15 @@ func (c *cartServiceClient) FindCartByUserId(ctx context.Context, in *FindCartBy
 	return out, nil
 }
 
+func (c *cartServiceClient) FindCartById(ctx context.Context, in *FindCartByIdRequest, opts ...grpc.CallOption) (*Cart, error) {
+	out := new(Cart)
+	err := c.cc.Invoke(ctx, "/model.CartService/FindCartById", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cartServiceClient) FindCartItems(ctx context.Context, in *FindCartItemsRequest, opts ...grpc.CallOption) (*FindCartItemsResponse, error) {
 	out := new(FindCartItemsResponse)
 	err := c.cc.Invoke(ctx, "/model.CartService/FindCartItems", in, out, opts...)
@@ -57,6 +67,7 @@ func (c *cartServiceClient) FindCartItems(ctx context.Context, in *FindCartItems
 // for forward compatibility
 type CartServiceServer interface {
 	FindCartByUserId(context.Context, *FindCartByUserIdRequest) (*Cart, error)
+	FindCartById(context.Context, *FindCartByIdRequest) (*Cart, error)
 	FindCartItems(context.Context, *FindCartItemsRequest) (*FindCartItemsResponse, error)
 	mustEmbedUnimplementedCartServiceServer()
 }
@@ -67,6 +78,9 @@ type UnimplementedCartServiceServer struct {
 
 func (UnimplementedCartServiceServer) FindCartByUserId(context.Context, *FindCartByUserIdRequest) (*Cart, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindCartByUserId not implemented")
+}
+func (UnimplementedCartServiceServer) FindCartById(context.Context, *FindCartByIdRequest) (*Cart, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindCartById not implemented")
 }
 func (UnimplementedCartServiceServer) FindCartItems(context.Context, *FindCartItemsRequest) (*FindCartItemsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindCartItems not implemented")
@@ -102,6 +116,24 @@ func _CartService_FindCartByUserId_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CartService_FindCartById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindCartByIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CartServiceServer).FindCartById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/model.CartService/FindCartById",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CartServiceServer).FindCartById(ctx, req.(*FindCartByIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CartService_FindCartItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FindCartItemsRequest)
 	if err := dec(in); err != nil {
@@ -130,6 +162,10 @@ var CartService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindCartByUserId",
 			Handler:    _CartService_FindCartByUserId_Handler,
+		},
+		{
+			MethodName: "FindCartById",
+			Handler:    _CartService_FindCartById_Handler,
 		},
 		{
 			MethodName: "FindCartItems",

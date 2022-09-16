@@ -16,6 +16,9 @@ func (u *userUseCase) FindUserByEmailAndPassword(ctx context.Context, request *p
 	span, ctx := tracing.StartSpanFromContext(ctx, "UserUseCase-FindUserByEmailAndPassword")
 	defer span.Finish()
 	user, err := u.userMongoDBRepository.FindUserByEmail(ctx, request.GetEmail())
+	if user.GetId() == "" {
+		err = xerrs.Mask(utils.ErrNotFound, utils.ErrNotFound)
+	}
 	if isAuthenticated := hash.Compare(user.GetPassword(), request.Password); !isAuthenticated {
 		err = xerrs.Mask(utils.ErrNotFound, utils.ErrNotFound)
 		return
@@ -28,5 +31,12 @@ func (u *userUseCase) FindUserById(ctx context.Context, request *pb.FindUserById
 	span, ctx := tracing.StartSpanFromContext(ctx, "UserUseCase-FindUserById")
 	defer span.Finish()
 	response, err = u.userMongoDBRepository.FindUserById(ctx, request.GetId())
+	return
+}
+
+func (u *userUseCase) FindUserByEmail(ctx context.Context, request *pb.FindUserByEmailRequest) (response *pb.User, err error) {
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserUseCase-FindUserByEmail")
+	defer span.Finish()
+	response, err = u.userMongoDBRepository.FindUserByEmail(ctx, request.GetEmail())
 	return
 }

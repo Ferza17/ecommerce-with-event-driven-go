@@ -448,7 +448,7 @@ func (x *CreateCartItemRequest) GetItems() []*CreateCartItem {
 	return nil
 }
 
-// FindCartByCartIdRequest
+// FindCartByCartByIdRequest
 type FindCartByUserIdRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

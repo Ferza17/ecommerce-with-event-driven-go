@@ -9,14 +9,17 @@ import (
 )
 
 type cartUseCase struct {
-	cartService pb.CartServiceClient
+	cartService    pb.CartServiceClient
+	productService pb.ProductServiceClient
 }
 
 func NewCartUseCase(
 	cartService pb.CartServiceClient,
+	productService pb.ProductServiceClient,
 ) CartUseCaseStore {
 	return &cartUseCase{
-		cartService: cartService,
+		cartService:    cartService,
+		productService: productService,
 	}
 }
 

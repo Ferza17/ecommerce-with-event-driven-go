@@ -14,6 +14,7 @@ const (
 	CreateCartItemsEvent Event = "CREATE-CART-ITEMS-EVENT"
 	DeleteCartItemsEvent Event = "DELETE-CART-ITEMS-EVENT"
 	UpdateCartItemsEvent Event = "UPDATE-CART-ITEMS-EVENT"
+	ReadCartNewState     Event = "READ-CART-NEW-STATE"
 
 	CreateCartEventSaga      EventSaga = "CREATE-CART-EVENT-SAGA"
 	CreateCartItemsEventSaga EventSaga = "INSERT-CART-ITEMS-EVENT-SAGA"

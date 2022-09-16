@@ -12,11 +12,12 @@ type UserUseCaseCommand interface {
 
 type UserUseCaseQuery interface {
 	FindUserByEmailAndPassword(ctx context.Context, request *pb.LoginRequest) (response *pb.LoginResponse, err error)
+	FindUserByEmail(ctx context.Context, request *pb.FindUserByEmailRequest) (response *pb.User, err error)
 	FindUserById(ctx context.Context, request *pb.FindUserByIdRequest) (response *pb.User, err error)
 }
 
 type UserUseCaseCompensate interface {
-	RollbackNewUserSAGA(ctx context.Context, transactionId string) (err error)
+	RollbackUserCrateNewUserSAGA(ctx context.Context, transactionId string) (err error)
 }
 
 type UserUseCaseStore interface {

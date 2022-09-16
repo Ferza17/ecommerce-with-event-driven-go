@@ -17,11 +17,12 @@ type CartMongoDBTransactionCreator interface {
 
 type CartMongoDBRepositoryCommand interface {
 	CreateCart(ctx context.Context, session mongo.Session, request *pb.CreateCartRequest) (response *pb.Cart, err error)
+	//CrateCartItems(ctx context.Context, session mongo.Session, request *pb.CreateCartItemRequest) (response *pb.Cart, err error)
 	DeleteCartById(ctx context.Context, session mongo.Session, id string) (err error)
 }
 
 type CartMongoDBRepositoryQuery interface {
-	FindCartByUserId(ctx context.Context, id string) (response *pb.Cart, err error)
+	FindCartByUserId(ctx context.Context, userId string) (response *pb.Cart, err error)
 }
 
 type CartMongoDBRepositoryStore interface {

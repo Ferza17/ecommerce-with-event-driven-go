@@ -48,7 +48,7 @@ message CreateCartItemRequest {
   repeated CreateCartItem items = 1;
 }
 
-//FindCartByCartIdRequest
+//FindCartByCartByIdRequest
 message FindCartByUserIdRequest {
   string id = 1;
 }

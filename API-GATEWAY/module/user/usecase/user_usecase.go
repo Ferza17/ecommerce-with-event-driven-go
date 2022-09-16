@@ -63,12 +63,22 @@ func (u *userUseCase) CreateUser(ctx context.Context, request *pb.RegisterReques
 	defer span.Finish()
 	payload, err := json.Marshal(request)
 	if err != nil {
-		response.Message = schema.CommandFailed
-		err = xerrs.Mask(err, utils.ErrInternalServerError)
+		err = xerrs.Mask(err, utils.ErrBadRequest)
 		return
 	}
+	// validate email user if already exist
+	previousUser, err := u.userService.FindUserByEmail(ctx, &pb.FindUserByEmailRequest{Email: request.GetEmail()})
+	if err != nil {
+		err = errorHandler.HandlerGrpcError(err)
+		return
+	}
+	if previousUser != nil && previousUser.GetId() != "" {
+		err = xerrs.Mask(utils.ErrItemAlreadyExist, utils.ErrItemAlreadyExist)
+		return
+	}
+
 	if err = u.userPublisher.PublishOrdinaryMessage(ctx, utils.CreateUserEvent, string(payload)); err != nil {
-		response.Message = schema.CommandFailed
+		err = xerrs.Mask(utils.ErrInternalServerError, utils.ErrInternalServerError)
 		return
 	}
 	response.Message = schema.CommandSuccess
