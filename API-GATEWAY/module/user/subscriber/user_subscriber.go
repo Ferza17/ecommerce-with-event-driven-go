@@ -73,7 +73,7 @@ func (s *userSubscriber) SubscribeNewUserState(ctx context.Context, id string) (
 			}
 			d.Ack(true)
 			span.Finish()
-			if user.Id == id && user != nil {
+			if user != nil {
 				userCh <- &model.User{
 					ID:          user.Id,
 					Username:    user.Username,
