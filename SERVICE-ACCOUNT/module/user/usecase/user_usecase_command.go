@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/RoseRocket/xerrs"
+
 	"github.com/Ferza17/event-driven-account-service/helper/hash"
 	"github.com/Ferza17/event-driven-account-service/helper/tracing"
 	"github.com/Ferza17/event-driven-account-service/model/pb"
@@ -52,11 +54,50 @@ func (u *userUseCase) CreateUser(ctx context.Context, request *pb.RegisterReques
 		return
 	}
 
-	if err = u.userPublisher.PublishOrdinaryMessage(ctx, utils.CreateCartEvent, string(cartRequest)); err != nil {
+	if err = u.userPub.PublishOrdinaryMessage(ctx, utils.CreateCartEvent, string(cartRequest)); err != nil {
 		err = u.userMongoDBRepository.AbortTransaction(ctx, session)
 		return
 	}
 
 	err = u.userMongoDBRepository.CommitTransaction(ctx, session)
+	return
+}
+
+func (u *userUseCase) UpdateUserByUserId(ctx context.Context, request *pb.UpdateUserByUserIdRequest) (err error) {
+
+	session, err := u.userMongoDBRepository.CreateNoSQLSession(ctx)
+	if err != nil {
+		return
+	}
+	defer session.EndSession(ctx)
+
+	if err = u.userMongoDBRepository.StartTransaction(ctx, session); err != nil {
+		return
+	}
+
+	if err = u.userMongoDBRepository.UpdateUserByUserId(ctx, session, request); err != nil {
+		err = u.userMongoDBRepository.AbortTransaction(ctx, session)
+		return
+	}
+
+	if err = u.userMongoDBRepository.CommitTransaction(ctx, session); err != nil {
+		return
+	}
+
+	user, err := u.userMongoDBRepository.FindUserById(ctx, request.GetId())
+	if err != nil {
+		return
+	}
+
+	payload, err := u.userPub.ParsePayloadToString(ctx, user)
+	if err != nil {
+		return
+	}
+
+	if err = u.userPub.PublishOrdinaryMessage(ctx, utils.UserNewState, payload); err != nil {
+		err = xerrs.Mask(err, utils.ErrInternalServerError)
+		return
+	}
+
 	return
 }

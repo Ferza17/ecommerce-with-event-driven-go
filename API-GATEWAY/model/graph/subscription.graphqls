@@ -1,0 +1,6 @@
+type Subscription {
+    # CART
+    subscribeChangeCartState(input:subscribeChangeCartState): Cart! @goField(forceResolver: true)
+    # USER
+    subscribeChangeUserState(input: subscribeChangeUserState): User! @goField(forceResolver: true)
+}

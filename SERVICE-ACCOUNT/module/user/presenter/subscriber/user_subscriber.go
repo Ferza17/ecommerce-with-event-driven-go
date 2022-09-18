@@ -26,7 +26,7 @@ func NewUserSubscriberPresenter() *userSubscriberPresenter {
 
 func (c *userSubscriberPresenter) Subscribe(ctx context.Context, ch *amqp.Channel) {
 	wg := sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(3)
 	go func() {
 		defer wg.Done()
 		c.subscribeCreateUserEvent(ctx, ch)
@@ -34,6 +34,10 @@ func (c *userSubscriberPresenter) Subscribe(ctx context.Context, ch *amqp.Channe
 	go func() {
 		defer wg.Done()
 		c.subscribeCreateCartEventSaga(ctx, ch)
+	}()
+	go func() {
+		defer wg.Done()
+		c.subscribeUpdateUserEvent(ctx, ch)
 	}()
 	wg.Wait()
 }
@@ -81,6 +85,55 @@ func (c *userSubscriberPresenter) subscribeCreateUserEvent(ctx context.Context, 
 			}
 			_, err = userUseCase.CreateUser(ctx, &request)
 			d.Ack(false)
+			span.Finish()
+		}
+	}()
+	<-stopChan
+}
+
+func (c *userSubscriberPresenter) subscribeUpdateUserEvent(ctx context.Context, ch *amqp.Channel) {
+	var (
+		tracer      = middleware.GetTracerFromContext(ctx)
+		userUseCase = user.GetUserUseCaseFromContext(ctx)
+		request     pb.UpdateUserByUserIdRequest
+	)
+	opentracing.SetGlobalTracer(tracer)
+	stopChan := make(chan bool)
+	q, err := ch.QueueDeclare(
+		string(utils.UpdateUserEvent),
+		true,
+		false,
+		false,
+		true,
+		nil,
+	)
+	if err != nil {
+		err = xerrs.Mask(err, utils.ErrInternalServerError)
+		return
+	}
+	msgs, err := ch.Consume(
+		q.Name,
+		"",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		err = xerrs.Mask(err, utils.ErrInternalServerError)
+		return
+	}
+	go func() {
+		for d := range msgs {
+			span, ctx := tracing.StartSpanFromContext(ctx, "subscribeUpdateUserEvent")
+			ctx = opentracing.ContextWithSpan(ctx, span)
+			err = json.Unmarshal(d.Body, &request)
+			if request.GetUsername() == "" {
+				return
+			}
+			err = userUseCase.UpdateUserByUserId(ctx, &request)
+			d.Ack(true)
 			span.Finish()
 		}
 	}()

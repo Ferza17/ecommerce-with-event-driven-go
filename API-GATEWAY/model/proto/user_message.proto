@@ -51,3 +51,9 @@ message FindUserByIdRequest {
 message FindUserByEmailRequest {
   string email = 1;
 }
+
+message UpdateUserByUserIdRequest {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+}

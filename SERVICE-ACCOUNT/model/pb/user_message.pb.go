@@ -540,6 +540,69 @@ func (x *FindUserByEmailRequest) GetEmail() string {
 	return ""
 }
 
+type UpdateUserByUserIdRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id       string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Email    string `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+}
+
+func (x *UpdateUserByUserIdRequest) Reset() {
+	*x = UpdateUserByUserIdRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_user_message_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdateUserByUserIdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateUserByUserIdRequest) ProtoMessage() {}
+
+func (x *UpdateUserByUserIdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_message_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateUserByUserIdRequest.ProtoReflect.Descriptor instead.
+func (*UpdateUserByUserIdRequest) Descriptor() ([]byte, []int) {
+	return file_user_message_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateUserByUserIdRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateUserByUserIdRequest) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *UpdateUserByUserIdRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
 var File_user_message_proto protoreflect.FileDescriptor
 
 var file_user_message_proto_rawDesc = []byte{
@@ -597,8 +660,14 @@ var file_user_message_proto_rawDesc = []byte{
 	0x69, 0x64, 0x22, 0x2e, 0x0a, 0x16, 0x46, 0x69, 0x6e, 0x64, 0x55, 0x73, 0x65, 0x72, 0x42, 0x79,
 	0x45, 0x6d, 0x61, 0x69, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05,
 	0x65, 0x6d, 0x61, 0x69, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x6d, 0x61,
-	0x69, 0x6c, 0x42, 0x0b, 0x5a, 0x09, 0x2f, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x2f, 0x70, 0x62, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x69, 0x6c, 0x22, 0x5d, 0x0a, 0x19, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x55, 0x73, 0x65, 0x72,
+	0x42, 0x79, 0x55, 0x73, 0x65, 0x72, 0x49, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12,
+	0x1a, 0x0a, 0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x65,
+	0x6d, 0x61, 0x69, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x65, 0x6d, 0x61, 0x69,
+	0x6c, 0x42, 0x0b, 0x5a, 0x09, 0x2f, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x2f, 0x70, 0x62, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -613,16 +682,17 @@ func file_user_message_proto_rawDescGZIP() []byte {
 	return file_user_message_proto_rawDescData
 }
 
-var file_user_message_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_user_message_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_user_message_proto_goTypes = []interface{}{
-	(*User)(nil),                   // 0: model.User
-	(*Device)(nil),                 // 1: model.Device
-	(*RegisterRequest)(nil),        // 2: model.RegisterRequest
-	(*RegisterResponse)(nil),       // 3: model.RegisterResponse
-	(*LoginRequest)(nil),           // 4: model.LoginRequest
-	(*LoginResponse)(nil),          // 5: model.LoginResponse
-	(*FindUserByIdRequest)(nil),    // 6: model.FindUserByIdRequest
-	(*FindUserByEmailRequest)(nil), // 7: model.FindUserByEmailRequest
+	(*User)(nil),                      // 0: model.User
+	(*Device)(nil),                    // 1: model.Device
+	(*RegisterRequest)(nil),           // 2: model.RegisterRequest
+	(*RegisterResponse)(nil),          // 3: model.RegisterResponse
+	(*LoginRequest)(nil),              // 4: model.LoginRequest
+	(*LoginResponse)(nil),             // 5: model.LoginResponse
+	(*FindUserByIdRequest)(nil),       // 6: model.FindUserByIdRequest
+	(*FindUserByEmailRequest)(nil),    // 7: model.FindUserByEmailRequest
+	(*UpdateUserByUserIdRequest)(nil), // 8: model.UpdateUserByUserIdRequest
 }
 var file_user_message_proto_depIdxs = []int32{
 	1, // 0: model.User.devices:type_name -> model.Device
@@ -735,6 +805,18 @@ func file_user_message_proto_init() {
 				return nil
 			}
 		}
+		file_user_message_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdateUserByUserIdRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -742,7 +824,7 @@ func file_user_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_user_message_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

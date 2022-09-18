@@ -93,3 +93,13 @@ func (p *userPublisher) PublishSagaMessage(ctx context.Context, sagaQueue utils.
 	}
 	return
 }
+
+func (p *userPublisher) ParsePayloadToString(ctx context.Context, request interface{}) (response string, err error) {
+	jsonString, err := json.Marshal(request)
+	if err != nil {
+		err = xerrs.Mask(err, utils.ErrInternalServerError)
+		return
+	}
+	response = string(jsonString)
+	return
+}

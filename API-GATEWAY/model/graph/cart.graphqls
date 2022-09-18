@@ -30,4 +30,7 @@ input findCartItems{
     page: Int!
 }
 
+input subscribeChangeCartState {
+    id : String!
+}
 

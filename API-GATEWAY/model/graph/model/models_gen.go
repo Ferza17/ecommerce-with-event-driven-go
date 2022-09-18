@@ -76,6 +76,14 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
+type SubscribeChangeCartState struct {
+	ID string `json:"id"`
+}
+
+type SubscribeChangeUserState struct {
+	ID string `json:"id"`
+}
+
 type CommandResponseMessage string
 
 const (

@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	rootCommand.AddCommand(rpcCommand)
+	rootCommand.AddCommand(runCommand, rpcCommand)
 }
 
 var rootCommand = &cobra.Command{

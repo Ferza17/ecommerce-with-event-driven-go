@@ -18,6 +18,7 @@ type UserMongoDBTransactionCreator interface {
 type UserMongoDBRepositoryCommand interface {
 	CreateUser(ctx context.Context, session mongo.Session, request *pb.RegisterRequest) (response *pb.User, err error)
 	DeleteUserByUserId(ctx context.Context, session mongo.Session, id string) (err error)
+	UpdateUserByUserId(ctx context.Context, session mongo.Session, request *pb.UpdateUserByUserIdRequest) (err error)
 }
 
 type UserMongoDBRepositoryQuery interface {

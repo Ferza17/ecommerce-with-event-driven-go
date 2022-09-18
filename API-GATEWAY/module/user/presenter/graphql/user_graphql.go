@@ -10,6 +10,7 @@ import (
 	"github.com/Ferza17/event-driven-api-gateway/model/graph/model"
 	"github.com/Ferza17/event-driven-api-gateway/model/pb"
 	"github.com/Ferza17/event-driven-api-gateway/module/user"
+	"github.com/Ferza17/event-driven-api-gateway/module/user/subscriber"
 )
 
 func HandleUserLogin(ctx context.Context, input *model.LoginRequest) (response *model.LoginResponse, err error) {
@@ -79,4 +80,16 @@ func HandleUserRegister(ctx context.Context, input *model.RegisterRequest) (resp
 		},
 	)
 	return
+}
+
+func HandleSubscribeChangeUserState(ctx context.Context, input *model.SubscribeChangeUserState) (<-chan *model.User, error) {
+	var (
+		userSub = subscriber.NewUserSubscriber(middleware.GetRabbitMQAmqpFromContext(ctx))
+		err     error
+	)
+	userCh, err := userSub.SubscribeNewUserState(ctx, input.ID)
+	if err != nil {
+		return nil, err
+	}
+	return userCh, nil
 }

@@ -4,11 +4,17 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/lru"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/go-chi/chi/v5"
 	chim "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
+	"github.com/gorilla/websocket"
 	"github.com/hashicorp/consul/api"
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
@@ -17,6 +23,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/Ferza17/event-driven-api-gateway/middleware"
+	"github.com/Ferza17/event-driven-api-gateway/model/graph/generated"
+	"github.com/Ferza17/event-driven-api-gateway/model/graph/resolver"
 	"github.com/Ferza17/event-driven-api-gateway/model/pb"
 	"github.com/Ferza17/event-driven-api-gateway/module/cart"
 	"github.com/Ferza17/event-driven-api-gateway/module/user"
@@ -32,6 +40,7 @@ type (
 		router                   *chi.Mux
 		tracer                   opentracing.Tracer
 		httpServer               *http.Server
+		graphQLServer            *handler.Server
 		consulClient             *api.Client
 		userServiceGrpcClient    pb.UserServiceClient
 		productServiceGrpcClient pb.ProductServiceClient
@@ -65,6 +74,36 @@ func (srv *Server) Serve() {
 }
 
 func (srv *Server) setup() {
+	// GraphQL Server
+	c := generated.Config{
+		Resolvers: &resolver.Resolver{},
+		Directives: generated.DirectiveRoot{
+			Jwt: middleware.DirectiveJwtRequired,
+		},
+	}
+
+	gqlServer := handler.NewDefaultServer(generated.NewExecutableSchema(c))
+	gqlServer.AddTransport(&transport.Websocket{
+		Upgrader: websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+		},
+		KeepAlivePingInterval: 10 * time.Second,
+	})
+	gqlServer.AddTransport(transport.Options{})
+	gqlServer.AddTransport(transport.GET{})
+	gqlServer.AddTransport(transport.MultipartForm{})
+	gqlServer.SetQueryCache(lru.New(1000))
+	gqlServer.Use(extension.Introspection{})
+	gqlServer.Use(extension.AutomaticPersistedQuery{
+		Cache: lru.New(100),
+	})
+	srv.graphQLServer = gqlServer
+
+	// HTTP Server
 	srv.router = srv.routes()
 	srv.httpServer = &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", srv.host, srv.port),
@@ -100,7 +139,6 @@ func (srv *Server) routes() *chi.Mux {
 		cart.RegisterCartUseCaseHTTPContext(),
 		chim.Heartbeat("/ping"),
 	)
-	// GraphQL
-	routes(r)
+	routes(r, srv.graphQLServer)
 	return r
 }

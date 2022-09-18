@@ -46,3 +46,7 @@ input registerRequest{
     email: String!
     password: String!
 }
+
+input subscribeChangeUserState{
+    id: String!
+}

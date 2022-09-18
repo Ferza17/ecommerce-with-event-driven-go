@@ -8,6 +8,7 @@ import (
 
 type UserUseCaseCommand interface {
 	CreateUser(ctx context.Context, request *pb.RegisterRequest) (response *pb.RegisterResponse, err error)
+	UpdateUserByUserId(ctx context.Context, request *pb.UpdateUserByUserIdRequest) (err error)
 }
 
 type UserUseCaseQuery interface {

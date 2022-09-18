@@ -12,7 +12,7 @@ type userUseCase struct {
 	userMongoDBRepository     mongodb.UserMongoDBRepositoryStore
 	userCassandraDBRepository cassandradb.UserCassandraDBRepositoryStore
 	userRedisRepository       redis.UserRedisRepositoryStore
-	userPublisher             publisher.UserPublisherStore
+	userPub                   publisher.UserPublisherStore
 	sagaStore                 saga.SagaStore
 }
 
@@ -27,7 +27,7 @@ func NewUserUseCase(
 		userMongoDBRepository:     userNOSQLRepository,
 		userCassandraDBRepository: userCassandraDBRepository,
 		userRedisRepository:       userCacheRepository,
-		userPublisher:             userPublisher,
+		userPub:                   userPublisher,
 		sagaStore:                 sagaStore,
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -38,6 +39,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Subscription() SubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -86,6 +88,11 @@ type ComplexityRoot struct {
 		Login                 func(childComplexity int, input *model.LoginRequest) int
 	}
 
+	Subscription struct {
+		SubscribeChangeCartState func(childComplexity int, input *model.SubscribeChangeCartState) int
+		SubscribeChangeUserState func(childComplexity int, input *model.SubscribeChangeUserState) int
+	}
+
 	User struct {
 		CreatedAt   func(childComplexity int) int
 		Devices     func(childComplexity int) int
@@ -115,6 +122,10 @@ type QueryResolver interface {
 	Login(ctx context.Context, input *model.LoginRequest) (*model.LoginResponse, error)
 	FindCartByUserID(ctx context.Context) (*model.Cart, error)
 	FindCartItemsArgsType(ctx context.Context, input *model.FindCartItems) ([]*model.CartItem, error)
+}
+type SubscriptionResolver interface {
+	SubscribeChangeCartState(ctx context.Context, input *model.SubscribeChangeCartState) (<-chan *model.Cart, error)
+	SubscribeChangeUserState(ctx context.Context, input *model.SubscribeChangeUserState) (<-chan *model.User, error)
 }
 
 type executableSchema struct {
@@ -329,6 +340,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Login(childComplexity, args["input"].(*model.LoginRequest)), true
 
+	case "Subscription.subscribeChangeCartState":
+		if e.complexity.Subscription.SubscribeChangeCartState == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_subscribeChangeCartState_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.SubscribeChangeCartState(childComplexity, args["input"].(*model.SubscribeChangeCartState)), true
+
+	case "Subscription.subscribeChangeUserState":
+		if e.complexity.Subscription.SubscribeChangeUserState == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_subscribeChangeUserState_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.SubscribeChangeUserState(childComplexity, args["input"].(*model.SubscribeChangeUserState)), true
+
 	case "User.createdAt":
 		if e.complexity.User.CreatedAt == nil {
 			break
@@ -417,6 +452,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputfindCartItems,
 		ec.unmarshalInputloginRequest,
 		ec.unmarshalInputregisterRequest,
+		ec.unmarshalInputsubscribeChangeCartState,
+		ec.unmarshalInputsubscribeChangeUserState,
 	)
 	first := true
 
@@ -445,6 +482,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
 			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, rc.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next(ctx)
+
+			if data == nil {
+				return nil
+			}
 			data.MarshalGQL(&buf)
 
 			return &graphql.Response{
@@ -509,6 +563,9 @@ input findCartItems{
     page: Int!
 }
 
+input subscribeChangeCartState {
+    id : String!
+}
 
 `, BuiltIn: false},
 	{Name: "../directive.graphqls", Input: `directive @goField(forceResolver: Boolean, name: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
@@ -525,6 +582,12 @@ directive @jwt on FIELD_DEFINITION`, BuiltIn: false},
     # CART
     findCartByUserId:Cart! @goField(forceResolver: true) @jwt
     findCartItemsArgsType(input: findCartItems): [CartItem] @goField(forceResolver: true) @jwt
+}`, BuiltIn: false},
+	{Name: "../subscription.graphqls", Input: `type Subscription {
+    # CART
+    subscribeChangeCartState(input:subscribeChangeCartState): Cart! @goField(forceResolver: true)
+    # USER
+    subscribeChangeUserState(input: subscribeChangeUserState): User! @goField(forceResolver: true)
 }`, BuiltIn: false},
 	{Name: "../user.graphqls", Input: `# GraphQL schema example
 #
@@ -574,7 +637,10 @@ input registerRequest{
     email: String!
     password: String!
 }
-`, BuiltIn: false},
+
+input subscribeChangeUserState{
+    id: String!
+}`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -634,6 +700,36 @@ func (ec *executionContext) field_Query_login_args(ctx context.Context, rawArgs 
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalOloginRequest2ᚖgithubᚗcomᚋFerza17ᚋeventᚑdrivenᚑapiᚑgatewayᚋmodelᚋgraphᚋmodelᚐLoginRequest(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_subscribeChangeCartState_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.SubscribeChangeCartState
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOsubscribeChangeCartState2ᚖgithubᚗcomᚋFerza17ᚋeventᚑdrivenᚑapiᚑgatewayᚋmodelᚋgraphᚋmodelᚐSubscribeChangeCartState(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_subscribeChangeUserState_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.SubscribeChangeUserState
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOsubscribeChangeUserState2ᚖgithubᚗcomᚋFerza17ᚋeventᚑdrivenᚑapiᚑgatewayᚋmodelᚋgraphᚋmodelᚐSubscribeChangeUserState(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2116,6 +2212,178 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_subscribeChangeCartState(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_subscribeChangeCartState(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().SubscribeChangeCartState(rctx, fc.Args["input"].(*model.SubscribeChangeCartState))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.Cart):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNCart2ᚖgithubᚗcomᚋFerza17ᚋeventᚑdrivenᚑapiᚑgatewayᚋmodelᚋgraphᚋmodelᚐCart(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_subscribeChangeCartState(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Cart_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_Cart_userId(ctx, field)
+			case "totalPrice":
+				return ec.fieldContext_Cart_totalPrice(ctx, field)
+			case "cartItems":
+				return ec.fieldContext_Cart_cartItems(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Cart_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Cart_updatedAt(ctx, field)
+			case "discardedAt":
+				return ec.fieldContext_Cart_discardedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Cart", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_subscribeChangeCartState_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_subscribeChangeUserState(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_subscribeChangeUserState(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().SubscribeChangeUserState(rctx, fc.Args["input"].(*model.SubscribeChangeUserState))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *model.User):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNUser2ᚖgithubᚗcomᚋFerza17ᚋeventᚑdrivenᚑapiᚑgatewayᚋmodelᚋgraphᚋmodelᚐUser(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_subscribeChangeUserState(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "devices":
+				return ec.fieldContext_User_devices(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "discardedAt":
+				return ec.fieldContext_User_discardedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_subscribeChangeUserState_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
 	}
 	return fc, nil
 }
@@ -4520,6 +4788,62 @@ func (ec *executionContext) unmarshalInputregisterRequest(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputsubscribeChangeCartState(ctx context.Context, obj interface{}) (model.SubscribeChangeCartState, error) {
+	var it model.SubscribeChangeCartState
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputsubscribeChangeUserState(ctx context.Context, obj interface{}) (model.SubscribeChangeUserState, error) {
+	var it model.SubscribeChangeUserState
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4903,6 +5227,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		return graphql.Null
 	}
 	return out
+}
+
+var subscriptionImplementors = []string{"Subscription"}
+
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func(ctx context.Context) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		ec.Errorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "subscribeChangeCartState":
+		return ec._Subscription_subscribeChangeCartState(ctx, fields[0])
+	case "subscribeChangeUserState":
+		return ec._Subscription_subscribeChangeUserState(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
 }
 
 var userImplementors = []string{"User"}
@@ -6085,6 +6431,22 @@ func (ec *executionContext) unmarshalOregisterRequest2ᚖgithubᚗcomᚋFerza17�
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputregisterRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOsubscribeChangeCartState2ᚖgithubᚗcomᚋFerza17ᚋeventᚑdrivenᚑapiᚑgatewayᚋmodelᚋgraphᚋmodelᚐSubscribeChangeCartState(ctx context.Context, v interface{}) (*model.SubscribeChangeCartState, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputsubscribeChangeCartState(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOsubscribeChangeUserState2ᚖgithubᚗcomᚋFerza17ᚋeventᚑdrivenᚑapiᚑgatewayᚋmodelᚋgraphᚋmodelᚐSubscribeChangeUserState(ctx context.Context, v interface{}) (*model.SubscribeChangeUserState, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputsubscribeChangeUserState(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

@@ -58,3 +58,34 @@ func (q *userMongoDBRepository) DeleteUserByUserId(ctx context.Context, session 
 	})
 	return
 }
+
+func (q *userMongoDBRepository) UpdateUserByUserId(ctx context.Context, session mongo.Session, request *pb.UpdateUserByUserIdRequest) (err error) {
+	var (
+		now = time.Now().UTC()
+	)
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserMongoDBRepository-UpdateUserByUserId")
+	defer span.Finish()
+	err = mongo.WithSession(ctx, session, func(sessionContext mongo.SessionContext) error {
+		primitiveId, err := primitive.ObjectIDFromHex(request.GetId())
+		if err != nil {
+			err = xerrs.Mask(err, utils.ErrBadRequest)
+			return err
+		}
+		userCollection := q.db.Database(databaseUser).Collection(collectionUsers)
+
+		update := bson.M{
+			"$set": bson.M{
+				"username":  request.GetUsername(),
+				"email":     request.GetEmail(),
+				"updatedAt": primitive.Timestamp{T: uint32(now.Unix()), I: 0},
+			},
+		}
+
+		if _, err = userCollection.UpdateOne(ctx, bson.M{"_id": primitiveId}, update); err != nil {
+			err = xerrs.Mask(err, utils.ErrInternalServerError)
+			return err
+		}
+		return nil
+	})
+	return
+}
