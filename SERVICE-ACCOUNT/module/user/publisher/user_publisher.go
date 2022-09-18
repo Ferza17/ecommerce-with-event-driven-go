@@ -7,6 +7,7 @@ import (
 	"github.com/RoseRocket/xerrs"
 	amqp "github.com/rabbitmq/amqp091-go"
 
+	"github.com/Ferza17/event-driven-account-service/helper/tracing"
 	"github.com/Ferza17/event-driven-account-service/saga"
 	"github.com/Ferza17/event-driven-account-service/utils"
 )
@@ -22,6 +23,8 @@ func NewUserPublisher(rabbitMQConnection *amqp.Connection) UserPublisherStore {
 }
 
 func (p *userPublisher) PublishOrdinaryMessage(ctx context.Context, queue utils.Event, payload string) (err error) {
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserPublisher-PublishOrdinaryMessage")
+	defer span.Finish()
 	ch, err := p.rabbitMQConnection.Channel()
 	if err != nil {
 		err = xerrs.Mask(err, utils.ErrInternalServerError)
@@ -56,6 +59,8 @@ func (p *userPublisher) PublishOrdinaryMessage(ctx context.Context, queue utils.
 }
 
 func (p *userPublisher) PublishSagaMessage(ctx context.Context, sagaQueue utils.EventSaga, payload *saga.Step) (err error) {
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserPublisher-PublishSagaMessage")
+	defer span.Finish()
 	ch, err := p.rabbitMQConnection.Channel()
 	if err != nil {
 		err = xerrs.Mask(err, utils.ErrInternalServerError)
@@ -95,6 +100,8 @@ func (p *userPublisher) PublishSagaMessage(ctx context.Context, sagaQueue utils.
 }
 
 func (p *userPublisher) ParsePayloadToString(ctx context.Context, request interface{}) (response string, err error) {
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserPublisher-ParsePayloadToString")
+	defer span.Finish()
 	jsonString, err := json.Marshal(request)
 	if err != nil {
 		err = xerrs.Mask(err, utils.ErrInternalServerError)

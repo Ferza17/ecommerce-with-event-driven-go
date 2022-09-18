@@ -64,7 +64,8 @@ func (u *userUseCase) CreateUser(ctx context.Context, request *pb.RegisterReques
 }
 
 func (u *userUseCase) UpdateUserByUserId(ctx context.Context, request *pb.UpdateUserByUserIdRequest) (err error) {
-
+	span, ctx := tracing.StartSpanFromContext(ctx, "UserUseCase-UpdateUserByUserId")
+	defer span.Finish()
 	session, err := u.userMongoDBRepository.CreateNoSQLSession(ctx)
 	if err != nil {
 		return
