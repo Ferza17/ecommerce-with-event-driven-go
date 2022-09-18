@@ -36,6 +36,20 @@ func Header() func(next http.Handler) http.Handler {
 	}
 }
 
+func RegisterHeaderHTTPContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var ctx = context.WithValue(r.Context(), utils.HeadersContextKey, &RequestHeader{
+			ClientId:      r.Header.Get("X-Client-Id"),
+			ClientVersion: r.Header.Get("X-Client-Version"),
+			DataVersion:   r.Header.Get("X-Data-Version"),
+			DeviceId:      r.Header.Get("X-Device-Id"),
+			ForwardedHost: r.Header.Get("X-Forwarded-Host"),
+			ForwardedIP:   r.Header.Get("X-Forwarded-For"),
+		})
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
 func GetRequestHeader(r *http.Request) *RequestHeader {
 	return r.Context().Value(utils.HeadersContextKey).(*RequestHeader)
 }

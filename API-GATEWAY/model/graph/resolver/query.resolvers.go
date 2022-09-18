@@ -10,6 +10,7 @@ import (
 	"github.com/Ferza17/event-driven-api-gateway/model/graph/generated"
 	"github.com/Ferza17/event-driven-api-gateway/model/graph/model"
 	cartPresenter "github.com/Ferza17/event-driven-api-gateway/module/cart/presenter/graphql"
+	productPresenter "github.com/Ferza17/event-driven-api-gateway/module/product/presenter/graphql"
 	userPresenter "github.com/Ferza17/event-driven-api-gateway/module/user/presenter/graphql"
 )
 
@@ -29,8 +30,18 @@ func (r *queryResolver) FindCartByUserID(ctx context.Context) (*model.Cart, erro
 }
 
 // FindCartItemsArgsType is the resolver for the findCartItemsArgsType field.
-func (r *queryResolver) FindCartItemsArgsType(ctx context.Context, input *model.FindCartItems) ([]*model.CartItem, error) {
+func (r *queryResolver) FindCartItemsArgsType(ctx context.Context, input *model.FindCartItemsRequest) ([]*model.CartItem, error) {
 	panic(fmt.Errorf("not implemented: FindCartItemsArgsType - findCartItemsArgsType"))
+}
+
+// FindProductByID is the resolver for the findProductById field.
+func (r *queryResolver) FindProductByID(ctx context.Context, input string) (*model.Product, error) {
+	return productPresenter.HandleFindProductById(ctx, input)
+}
+
+// FindProducts is the resolver for the findProducts field.
+func (r *queryResolver) FindProducts(ctx context.Context, input *model.FindProductsRequest) ([]*model.Product, error) {
+	return productPresenter.HandleFindProducts(ctx, input)
 }
 
 // Query returns generated.QueryResolver implementation.

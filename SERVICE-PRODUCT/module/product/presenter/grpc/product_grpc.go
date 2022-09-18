@@ -11,15 +11,15 @@ import (
 	"github.com/Ferza17/event-driven-product-service/module/product"
 )
 
-type productGRPCPresenter struct {
+type ProductGRPCPresenter struct {
 	pb.UnimplementedProductServiceServer
 }
 
-func NewProductGRPCPresenter() *productGRPCPresenter {
-	return &productGRPCPresenter{}
+func NewProductGRPCPresenter() *ProductGRPCPresenter {
+	return &ProductGRPCPresenter{}
 }
 
-func (h *productGRPCPresenter) FindProductById(ctx context.Context, request *pb.FindProductByIdRequest) (response *pb.Product, err error) {
+func (h *ProductGRPCPresenter) FindProductById(ctx context.Context, request *pb.FindProductByIdRequest) (response *pb.Product, err error) {
 	var (
 		productUseCase = product.GetProductUseCaseFromContext(ctx)
 	)
@@ -33,7 +33,7 @@ func (h *productGRPCPresenter) FindProductById(ctx context.Context, request *pb.
 	return
 }
 
-func (h *productGRPCPresenter) FindProducts(ctx context.Context, request *pb.FindProductsRequest) (response *pb.FindProductsResponse, err error) {
+func (h *ProductGRPCPresenter) FindProducts(ctx context.Context, request *pb.FindProductsRequest) (response *pb.FindProductsResponse, err error) {
 	var (
 		productUseCase = product.GetProductUseCaseFromContext(ctx)
 	)
@@ -41,6 +41,19 @@ func (h *productGRPCPresenter) FindProducts(ctx context.Context, request *pb.Fin
 	span, ctx := tracing.StartSpanFromContext(ctx, "productGRPCPresenter-FindProducts")
 	defer span.Finish()
 	if response, err = productUseCase.FindProducts(ctx, request); err != nil {
+		err = errorHandler.RpcErrorHandler(err)
+	}
+	return
+}
+
+func (h *ProductGRPCPresenter) FindProductsByProductIds(ctx context.Context, request *pb.FindProductsByProductIdsRequest) (response *pb.FindProductsByProductIdsResponse, err error) {
+	var (
+		productUseCase = product.GetProductUseCaseFromContext(ctx)
+	)
+	response = &pb.FindProductsByProductIdsResponse{}
+	span, ctx := tracing.StartSpanFromContext(ctx, "productGRPCPresenter-FindProductsByProductIds")
+	defer span.Finish()
+	if response, err = productUseCase.FindProductsByProductIds(ctx, request); err != nil {
 		err = errorHandler.RpcErrorHandler(err)
 	}
 	return

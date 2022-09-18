@@ -19,7 +19,7 @@ var rpcCommand = &cobra.Command{
 			grpc.NewTracer(tracer),
 			grpc.NewLogger(logger),
 			grpc.NewRedisClient(redisClient),
-			grpc.NewRabbitMQConnection(amqpConn),
+			grpc.NewRabbitMQConnection(rabbitMQConnection),
 			grpc.NewElasticsearchClient(esClient),
 			grpc.NewPostgresClient(postgresSQlClient),
 			grpc.NewCassandraSession(cassandraSession),

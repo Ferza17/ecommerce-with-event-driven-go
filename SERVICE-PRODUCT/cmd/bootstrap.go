@@ -25,14 +25,14 @@ import (
 )
 
 var (
-	consulClient      *api.Client
-	esClient          *elasticsearch.Client
-	cassandraSession  *gocql.Session
-	logger            *zap.Logger
-	tracer            opentracing.Tracer
-	amqpConn          *amqp.Connection
-	redisClient       *redis.Client
-	postgresSQlClient *sqlx.DB
+	consulClient       *api.Client
+	esClient           *elasticsearch.Client
+	cassandraSession   *gocql.Session
+	logger             *zap.Logger
+	tracer             opentracing.Tracer
+	rabbitMQConnection *amqp.Connection
+	redisClient        *redis.Client
+	postgresSQlClient  *sqlx.DB
 )
 
 func init() {
@@ -40,7 +40,7 @@ func init() {
 	esClient = NewElasticsearchClient()
 	logger = NewLogger()
 	tracer = NewTracer()
-	amqpConn = NewAmqp()
+	rabbitMQConnection = NewAmqp()
 	redisClient = NewRedisClient()
 	cassandraSession = NewCassandraSession()
 	postgresSQlClient = NewPostgresSQlClient()
@@ -191,4 +191,18 @@ func NewPostgresSQlClient() *sqlx.DB {
 	}
 	log.Println("PostgresSQL Connected")
 	return db
+}
+
+func Shutdown(ctx context.Context) (err error) {
+	cassandraSession.Close()
+	if err = postgresSQlClient.Close(); err != nil {
+		return
+	}
+	if err = redisClient.Close(); err != nil {
+		return
+	}
+	if err = rabbitMQConnection.Close(); err != nil {
+		return
+	}
+	return
 }

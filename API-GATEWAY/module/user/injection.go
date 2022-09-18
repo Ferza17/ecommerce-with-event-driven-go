@@ -17,14 +17,11 @@ func newUserUseCase(ctx context.Context) userUseCase.UserUseCaseStore {
 	)
 }
 
-func RegisterUserUseCaseHTTPContext() func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
-			var ctx = r.Context()
-			next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, utils.UserUseCaseContextKey, newUserUseCase(ctx))))
-		}
-		return http.HandlerFunc(fn)
-	}
+func RegisterUserUseCaseHTTPContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var ctx = r.Context()
+		next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, utils.UserUseCaseContextKey, newUserUseCase(ctx))))
+	})
 }
 
 func RegisterUserUseCaseContext(ctx context.Context) context.Context {

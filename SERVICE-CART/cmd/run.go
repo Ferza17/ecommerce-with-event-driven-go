@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"log"
 	"os"
-	"sync"
+	"os/signal"
+	"syscall"
 
 	"github.com/spf13/cobra"
 
@@ -14,11 +16,10 @@ import (
 var runCommand = &cobra.Command{
 	Use: "run",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("========= Starting RabbitMQ CONSUMER Server & gRPC Server =========")
-		wg := sync.WaitGroup{}
-		wg.Add(2)
+		chClose := make(chan os.Signal, 2)
+		signal.Notify(chClose, syscall.SIGINT, syscall.SIGTERM)
 		go func() {
-			defer wg.Done()
+			log.Println("========= Starting RabbitMQ CONSUMER Server =========")
 			rabbitmq.NewServer(
 				rabbitmq.NewMongoClient(mongoClient),
 				rabbitmq.NewLogger(logger),
@@ -29,7 +30,7 @@ var runCommand = &cobra.Command{
 			).Serve()
 		}()
 		go func() {
-			defer wg.Done()
+			log.Println("========= Starting gRPC Server =========")
 			grpc.NewServer(
 				os.Getenv("RPC_HOST"),
 				os.Getenv("RPC_PORT"),
@@ -41,6 +42,12 @@ var runCommand = &cobra.Command{
 				grpc.NewCassandraSession(cassandraSession),
 			).Serve()
 		}()
-		wg.Wait()
+
+		<-chClose
+		if err := Shutdown(context.Background()); err != nil {
+			log.Fatalln(err)
+			return
+		}
+		log.Println("Exit...")
 	},
 }

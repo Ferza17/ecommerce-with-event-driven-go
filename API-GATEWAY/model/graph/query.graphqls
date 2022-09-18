@@ -4,5 +4,8 @@ type Query {
     login(input: loginRequest):loginResponse! @goField(forceResolver: true)
     # CART
     findCartByUserId:Cart! @goField(forceResolver: true) @jwt
-    findCartItemsArgsType(input: findCartItems): [CartItem] @goField(forceResolver: true) @jwt
+    findCartItemsArgsType(input: findCartItemsRequest): [CartItem] @goField(forceResolver: true) @jwt
+    # PRODUCT
+    findProductById(input: String!):Product! @goField(forceResolver: true) @jwt
+    findProducts(input: findProductsRequest):[Product!]! @goField(forceResolver: true) @jwt
 }

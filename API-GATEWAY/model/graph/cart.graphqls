@@ -23,7 +23,7 @@ type CartItem {
     discardedAt: Int!
 }
 
-input findCartItems{
+input findCartItemsRequest{
     id: String!
     productId: String!
     limit: Int!
@@ -32,5 +32,12 @@ input findCartItems{
 
 input subscribeChangeCartState {
     id : String!
+}
+
+input findProductsRequest {
+    ids : [String!]
+    names : [String!]
+    limit : Int!
+    page: Int!
 }
 

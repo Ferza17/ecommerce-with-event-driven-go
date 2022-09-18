@@ -38,6 +38,19 @@ type Device struct {
 	DiscardedAt int    `json:"discardedAt"`
 }
 
+type Product struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Uom         string  `json:"uom"`
+	Image       string  `json:"image"`
+	Price       float64 `json:"price"`
+	Stock       int     `json:"stock"`
+	CreatedAt   int     `json:"createdAt"`
+	UpdatedAt   int     `json:"updatedAt"`
+	DiscardedAt int     `json:"discardedAt"`
+}
+
 type User struct {
 	ID          string    `json:"id"`
 	Username    string    `json:"username"`
@@ -53,11 +66,18 @@ type CommandResponse struct {
 	Message CommandResponseMessage `json:"message"`
 }
 
-type FindCartItems struct {
+type FindCartItemsRequest struct {
 	ID        string `json:"id"`
 	ProductID string `json:"productId"`
 	Limit     int    `json:"limit"`
 	Page      int    `json:"page"`
+}
+
+type FindProductsRequest struct {
+	Ids   []string `json:"ids"`
+	Names []string `json:"names"`
+	Limit int      `json:"limit"`
+	Page  int      `json:"page"`
 }
 
 type LoginRequest struct {

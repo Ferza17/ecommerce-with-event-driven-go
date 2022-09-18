@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/RoseRocket/xerrs"
 
@@ -55,6 +56,66 @@ func (q *productPostgresRepository) FindProductById(ctx context.Context, id stri
 			return
 		}
 		err = xerrs.Mask(err, utils.ErrQueryRead)
+	}
+	return
+}
+
+func (q *productPostgresRepository) FindProductsByProductIds(ctx context.Context, ids []string) (response *pb.FindProductsByProductIdsResponse, err error) {
+	var (
+		query = fmt.Sprintf(
+			`SELECT 
+    			id
+			    , "name"
+			    , description
+			    , image
+     			, stock
+     			, price
+     			, uom
+			    , created_at
+			    , updated_at
+				, COALESCE(discarded_at, 0)	
+    		FROM %s`, tableProduct)
+		placeholders []string
+		params       []interface{}
+	)
+	response = &pb.FindProductsByProductIdsResponse{}
+	span, ctx := tracing.StartSpanFromContext(ctx, "ProductSqlRepository-FindProductsByProductIds")
+	defer span.Finish()
+	if len(ids) < 1 {
+		return
+	}
+	for _, s := range ids {
+		params = append(params, s)
+		placeholders = append(placeholders, fmt.Sprintf("$%d", len(params)))
+	}
+	query += fmt.Sprintf(` WHERE id IN (%s) `, strings.Join(placeholders, ","))
+	query += `ORDER BY id DESC`
+	rows, err := q.dbRead.Query(query, params...)
+	if err == sql.ErrNoRows {
+		err = xerrs.Mask(err, utils.ErrNotFound)
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var (
+			product pb.Product
+		)
+		if err = rows.Scan(
+			&product.Id,
+			&product.Name,
+			&product.Description,
+			&product.Image,
+			&product.Stock,
+			&product.Price,
+			&product.Uom,
+			&product.CreatedAt,
+			&product.UpdatedAt,
+			&product.DiscardedAt,
+		); err != nil {
+			err = xerrs.Mask(err, utils.ErrQueryRead)
+			return
+		}
+		response.Products[product.Id] = &product
 	}
 	return
 }

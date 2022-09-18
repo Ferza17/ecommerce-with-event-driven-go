@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"log"
 	"os"
-	"sync"
+	"os/signal"
+	"syscall"
 
 	"github.com/spf13/cobra"
 
@@ -13,18 +15,17 @@ import (
 var runCommand = &cobra.Command{
 	Use: "run",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("========== Starting RPC Server ==========")
-		wg := sync.WaitGroup{}
-		wg.Add(2)
+		chClose := make(chan os.Signal, 2)
+		signal.Notify(chClose, syscall.SIGINT, syscall.SIGTERM)
 		go func() {
-			defer wg.Done()
+			log.Println("========== Starting RPC Server ==========")
 			grpc.NewServer(
 				os.Getenv("RPC_HOST"),
 				os.Getenv("RPC_PORT"),
 				grpc.NewTracer(tracer),
 				grpc.NewLogger(logger),
 				grpc.NewRedisClient(redisClient),
-				grpc.NewRabbitMQConnection(amqpConn),
+				grpc.NewRabbitMQConnection(rabbitMQConnection),
 				grpc.NewElasticsearchClient(esClient),
 				grpc.NewPostgresClient(postgresSQlClient),
 				grpc.NewCassandraSession(cassandraSession),
@@ -34,6 +35,12 @@ var runCommand = &cobra.Command{
 			//TODO:
 			// 1. Add Consumer Server
 		}()
-		wg.Wait()
+
+		<-chClose
+		if err := Shutdown(context.Background()); err != nil {
+			log.Fatalln(err)
+			return
+		}
+		log.Println("Exit...")
 	},
 }

@@ -174,3 +174,17 @@ func NewCassandraSession() *gocql.Session {
 	log.Println("CassandraDB Connected")
 	return session
 }
+
+func Shutdown(ctx context.Context) (err error) {
+	cassandraSession.Close()
+	if err = mongoClient.Disconnect(ctx); err != nil {
+		return
+	}
+	if err = rabbitMQConnection.Close(); err != nil {
+		return
+	}
+	if err = redisClient.Close(); err != nil {
+		return
+	}
+	return
+}

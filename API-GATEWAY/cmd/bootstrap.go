@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -160,4 +161,11 @@ func NewCartServiceGrpcClient() pb.CartServiceClient {
 	}
 	log.Println("cart grpc service connected")
 	return pb.NewCartServiceClient(cc)
+}
+
+func Shutdown(ctx context.Context) (err error) {
+	if err = rabbitMQConnection.Close(); err != nil {
+		return
+	}
+	return
 }

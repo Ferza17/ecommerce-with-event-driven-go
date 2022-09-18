@@ -27,6 +27,7 @@ import (
 	"github.com/Ferza17/event-driven-api-gateway/model/graph/resolver"
 	"github.com/Ferza17/event-driven-api-gateway/model/pb"
 	"github.com/Ferza17/event-driven-api-gateway/module/cart"
+	"github.com/Ferza17/event-driven-api-gateway/module/product"
 	"github.com/Ferza17/event-driven-api-gateway/module/user"
 )
 
@@ -129,14 +130,16 @@ func (srv *Server) routes() *chi.Mux {
 		render.SetContentType(render.ContentTypeJSON),
 		l.Logger(srv.logger),
 		middleware.Host(srv.codename),
-		middleware.Header(),
+		middleware.RegisterHeaderHTTPContext,
+		middleware.RegisterTokenHTTPContext,
 		middleware.RegisterTracerHTTPContext(srv.tracer),
 		middleware.RegisterRabbitMQAmqpHTTPContext(srv.rabbitMQConnection),
 		middleware.RegisterUserServiceGrpcClientHttpContext(srv.userServiceGrpcClient),
 		middleware.RegisterProductServiceGrpcClientHttpContext(srv.productServiceGrpcClient),
 		middleware.RegisterCartServiceGrpcClientHttpContext(srv.cartServiceGrpcClient),
-		user.RegisterUserUseCaseHTTPContext(),
-		cart.RegisterCartUseCaseHTTPContext(),
+		user.RegisterUserUseCaseHTTPContext,
+		cart.RegisterCartUseCaseHTTPContext,
+		product.RegisterProductUseCaseHTTPContext,
 		chim.Heartbeat("/ping"),
 	)
 	routes(r, srv.graphQLServer)

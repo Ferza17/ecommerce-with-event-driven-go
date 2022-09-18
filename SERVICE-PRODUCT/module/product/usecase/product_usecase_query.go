@@ -22,3 +22,11 @@ func (u *productUseCase) FindProducts(ctx context.Context, request *pb.FindProdu
 	response, err = u.productPostgresRepository.FindProducts(ctx, request)
 	return
 }
+
+func (u *productUseCase) FindProductsByProductIds(ctx context.Context, request *pb.FindProductsByProductIdsRequest) (response *pb.FindProductsByProductIdsResponse, err error) {
+	response = &pb.FindProductsByProductIdsResponse{}
+	span, ctx := tracing.StartSpanFromContext(ctx, "ProductUseCase-FindProductsByProductIds")
+	defer span.Finish()
+	response, err = u.productPostgresRepository.FindProductsByProductIds(ctx, request.GetProductIds())
+	return
+}
